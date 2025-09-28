@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#4a6bff" />
+  <title>👨‍🏫 TinoBot Teacher Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+  <style>
+    :root {
+      --primary: #4a6bff;
+      --primary-light: #6a85ff;
+      --secondary: #8e9cb2;
+      --accent: #00c9a7;
+      --bg-light: #f8faff;
+      --bg-dark: #1a2238;
+      --text-light: #ffffff;
+      --text-dark: #2d3748;
+      --card-bg: #ffffff;
+      --card-dark: #222b45;
+      --shadow: 0 10px 20px rgba(74, 107, 255, 0.1);
+      --shadow-hover: 0 15px 30px rgba(74, 107, 255, 0.2);
+      --border-radius: 12px;
+      --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: "Poppins", sans-serif;
+      min-height: 100vh;
+      color: var(--text-dark);
+      background-color: var(--bg-light);
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+      line-height: 1.6;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      body {
+        background-color: var(--bg-dark);
+        color: var(--text-light);
+      }
+      .select-card {
+        background-color: var(--card-dark);
+      }
+      .form-control {
+        border-color: #3a4556;
+        color: var(--text-light);
+        background-color: #2a3447;
+      }
+      .form-control::placeholder {
+        color: #8e9cb2;
+      }
+    }
+
+    .header {
+      background: linear-gradient(135deg, var(--primary), var(--primary-light));
+      padding: 1.5em 3em;
+      box-shadow: var(--shadow);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 10;
+      color: var(--text-light);
+    }
+
+    .header h1 {
+      font-size: 1.8em;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .main {
+      padding: 3em;
+      flex-grow: 1;
+      overflow-y: auto;
+      background-color: var(--bg-light);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      .main {
+        background-color: var(--bg-dark);
+      }
+    }
+
+    .select-card {
+      background-color: var(--card-bg);
+      padding: 2.5em;
+      border-radius: var(--border-radius);
+      box-shadow: var(--shadow);
+      margin-bottom: 2em;
+      max-width: 600px;
+      margin: 2em auto;
+      transition: var(--transition);
+      border: 1px solid rgba(74, 107, 255, 0.1);
+    }
+
+    .select-card:hover {
+      box-shadow: var(--shadow-hover);
+      transform: translateY(-5px);
+    }
+
+    .progress-title {
+      font-size: 1.5em;
+      margin-bottom: 1.5em;
+      color: var(--primary);
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .form-group {
+      margin-bottom: 2em;
+      position: relative;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 0.8em;
+      font-weight: 500;
+      color: var(--primary);
+      font-size: 1.1em;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 1em 1.2em;
+      font-size: 1em;
+      border: 2px solid #e2e8f0;
+      border-radius: var(--border-radius);
+      background-color: var(--card-bg);
+      color: var(--text-dark);
+      transition: var(--transition);
+      font-family: "Poppins", sans-serif;
+    }
+
+    .form-control:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(74, 107, 255, 0.2);
+      outline: none;
+    }
+
+    .submit-btn {
+      width: 100%;
+      padding: 1em;
+      background: linear-gradient(135deg, var(--primary), var(--primary-light));
+      color: var(--text-light);
+      border: none;
+      border-radius: var(--border-radius);
+      font-size: 1.1em;
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--transition);
+      margin-top: 1em;
+      letter-spacing: 0.5px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .submit-btn:hover {
+      background: linear-gradient(135deg, #3a5bff, #5a75ff);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-hover);
+    }
+
+    .submit-btn:active {
+      transform: translateY(0);
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 1em;
+      margin-top: 1em;
+    }
+
+    .manage-students-btn {
+      width: 100%;
+      padding: 1em;
+      background: linear-gradient(135deg, var(--accent), #00d4b1);
+      color: var(--text-light);
+      border: none;
+      border-radius: var(--border-radius);
+      font-size: 1.1em;
+      font-weight: 600;
+      cursor: pointer;
+      transition: var(--transition);
+      text-decoration: none;
+      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .manage-students-btn:hover {
+      background: linear-gradient(135deg, #00b89a, var(--accent));
+      transform: translateY(-2px);
+      box-shadow: 0 15px 30px rgba(0, 201, 167, 0.2);
+    }
+
+    .logout-btn {
+      padding: 0.7em 1.5em;
+      background-color: #ff4757;
+      color: var(--text-light);
+      border: none;
+      border-radius: var(--border-radius);
+      font-size: 1em;
+      font-weight: 500;
+      cursor: pointer;
+      transition: var(--transition);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .logout-btn:hover {
+      background-color: #ff6b81;
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(255, 71, 87, 0.3);
+    }
+
+    /* Floating animation */
+    @keyframes float {
+      0% { transform: translateY(0px); }
+      50% { transform: translateY(-10px); }
+      100% { transform: translateY(0px); }
+    }
+
+    .header h1 {
+      animation: float 4s ease-in-out infinite;
+    }
+
+    /* Responsive design */
+    @media (max-width: 768px) {
+      .header {
+        flex-direction: column;
+        gap: 1em;
+        text-align: center;
+        padding: 1.5em 1em;
+      }
+      
+      .main {
+        padding: 1.5em;
+      }
+      
+      .select-card {
+        padding: 1.5em;
+      }
+
+      .action-buttons {
+        flex-direction: column;
+      }
+    }
+
+    /* Decorative elements */
+    .select-card::before {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 5px;
+      height: 100%;
+      background: linear-gradient(to bottom, var(--primary), var(--accent));
+      border-radius: var(--border-radius) 0 0 var(--border-radius);
+    }
+
+    /* Input focus animation */
+    .form-group:focus-within label {
+      color: var(--accent);
+    }
+  </style>
+</head>
+<body>
+  <header class="header" role="banner">
+    <h1><i class="fas fa-chalkboard-teacher"></i> TinoBot Teacher Dashboard</h1>
+    <a href="/logout" class="logout-btn"><i class="fas fa-sign-out-alt"></i> Logout</a>
+  </header>
+
+  <main class="main" role="main">
+    <div class="select-card">
+      <h3 class="progress-title"><i class="fas fa-user-graduate"></i> Select Student</h3>
+      <form method="POST" action="/view_student_progress">
+        <div class="form-group">
+          <label for="student_id"><i class="fas fa-id-card"></i> Student ID</label>
+          <input type="text" class="form-control" id="student_id" name="student_id" placeholder="Enter student ID" required>
+        </div>
+        <div class="form-group">
+          <label for="student_name"><i class="fas fa-user"></i> Student Name</label>
+          <input type="text" class="form-control" id="student_name" name="student_name" placeholder="Enter student name" required>
+        </div>
+        <button type="submit" class="submit-btn"><i class="fas fa-chart-line"></i> View Progress</button>
+      </form>
+      
+      <div class="action-buttons">
+        <a href="/students" class="manage-students-btn">
+          <i class="fas fa-user-plus"></i> Manage Students
+        </a>
+        <a href="/teacher_chat" class="manage-students-btn">
+          <i class="fas fa-comments"></i> Chat with Students
+        </a>
+      </div>
+
+  <script>
+    // Add subtle animation to form elements when page loads
+    document.addEventListener('DOMContentLoaded', () => {
+      const formElements = document.querySelectorAll('.form-group, .submit-btn, .manage-students-btn');
+      formElements.forEach((el, index) => {
+        el.style.opacity = '0';
+        el.style.transform = 'translateY(20px)';
+        el.style.animation = `fadeInUp 0.5s ease-out forwards ${index * 0.1 + 0.3}s`;
+      });
+      
+      // Add style for the animation
+      const style = document.createElement('style');
+      style.textContent = `
+        @keyframes fadeInUp {
+          from {
+            opacity: 0;
+            transform: translateY(20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+      `;
+      document.head.appendChild(style);
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0056b3" />
+  <title>❓ TinoBot Quiz Generator</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+  <style>
+    :root {
+      --primary: #4361ee;
+      --primary-light: #e0e7ff;
+      --secondary: #7209b7;
+      --accent: #3a0ca3;
+      --success: #4cc9f0;
+      --warning: #f8961e;
+      --danger: #f72585;
+      --light: #f8f9fa;
+      --dark: #212529;
+      --gray: #6c757d;
+      --card-bg: #ffffff;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.12);
+      --shadow-md: 0 4px 6px rgba(0,0,0,0.1);
+      --shadow-lg: 0 10px 15px rgba(0,0,0,0.1);
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    }
+
+    [data-theme="dark"] {
+      --primary: #4895ef;
+      --primary-light: #1a1b41;
+      --secondary: #b5179e;
+      --accent: #560bad;
+      --light: #2b2d42;
+      --dark: #f8f9fa;
+      --gray: #adb5bd;
+      --card-bg: #1a1b41;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      min-height: 100vh;
+      color: var(--dark);
+      background-color: var(--light);
+      display: grid;
+      grid-template: "sidebar header" auto "sidebar main" 1fr / minmax(280px, 18%) 1fr;
+      line-height: 1.6;
+      transition: var(--transition);
+    }
+
+    .layout {
+      display: contents;
+    }
+
+    .sidebar {
+      grid-area: sidebar;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+      color: white;
+      padding: 2rem 1.5rem;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+      z-index: 100;
+    }
+
+    .sidebar h2 {
+      font-size: 1.75rem;
+      margin-bottom: 2rem;
+      text-align: center;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
+    }
+
+    .sidebar h2::before {
+      content: "";
+      font-size: 1.5em;
+    }
+
+    .sidebar ul {
+      list-style: none;
+      margin-top: 1rem;
+    }
+
+    .sidebar li {
+      padding: 0.9rem 1.2rem;
+      margin-bottom: 0.5rem;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: var(--transition);
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-weight: 500;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .sidebar li::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      width: 4px;
+      background: white;
+      transform: translateX(-10px);
+      opacity: 0;
+      transition: var(--transition);
+    }
+
+    .sidebar li:hover {
+      background: rgba(255, 255, 255, 0.15);
+      transform: translateX(5px);
+    }
+
+    .sidebar li:hover::before {
+      transform: translateX(0);
+      opacity: 1;
+    }
+
+    .sidebar li.active {
+      background: rgba(255, 255, 255, 0.25);
+      font-weight: 600;
+    }
+
+    .sidebar li.active::before {
+      transform: translateX(0);
+      opacity: 1;
+    }
+
+    .sidebar li i {
+      font-size: 1.1rem;
+      width: 24px;
+      text-align: center;
+    }
+
+    .header {
+      grid-area: header;
+      background-color: var(--card-bg);
+      padding: 1.5rem 2.5rem;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 2rem;
+      z-index: 10;
+      position: sticky;
+      top: 0;
+    }
+
+    .header h1 {
+      font-size: 1.8rem;
+      color: var(--primary);
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      white-space: nowrap;
+    }
+
+    .header h1::before {
+      content: "";
+      font-size: 1.5em;
+      animation: float 3s ease-in-out infinite;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .theme-toggle {
+      background: var(--primary-light);
+      border: none;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: var(--transition);
+      color: var(--primary);
+    }
+
+    .theme-toggle:hover {
+      transform: rotate(30deg) scale(1.1);
+    }
+
+    .main {
+      grid-area: main;
+      padding: 2.5rem;
+      overflow-y: auto;
+      background-color: var(--light);
+    }
+
+    .quiz-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .quiz-card {
+      background-color: var(--card-bg);
+      padding: 2rem;
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-sm);
+      transition: var(--transition);
+      border-top: 4px solid var(--primary);
+    }
+
+    .quiz-card:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .quiz-card h3 {
+      margin: 0 0 1rem;
+      color: var(--primary);
+      font-size: 1.5rem;
+      font-weight: 600;
+    }
+
+    .form-group {
+      margin-bottom: 1.75rem;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 0.75rem;
+      font-weight: 500;
+      color: var(--primary);
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .form-control {
+      width: 100%;
+      padding: 1rem 1.25rem;
+      font-size: 1rem;
+      border: 2px solid var(--primary-light);
+      border-radius: var(--radius-sm);
+      background-color: var(--card-bg);
+      color: var(--dark);
+      transition: var(--transition);
+      font-family: 'Poppins', sans-serif;
+    }
+
+    .form-control:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 4px rgba(67, 97, 238, 0.2);
+      outline: none;
+    }
+
+    .submit-btn {
+      padding: 0.75rem 1.5rem;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+      color: white;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-size: 0.95rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: var(--transition);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      box-shadow: var(--shadow-sm);
+      width: 100%;
+    }
+
+    .submit-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .submit-btn:active {
+      transform: translateY(0);
+    }
+
+    .card-header {
+      font-weight: 600;
+      font-size: 1.2rem;
+      margin-bottom: 1rem;
+      color: var(--primary);
+    }
+
+    /* Global Spinner Styles */
+    #global-spinner {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+      backdrop-filter: blur(3px);
+    }
+
+    .spinner-content {
+      text-align: center;
+      color: white;
+    }
+
+    .spinner-icon {
+      width: 60px;
+      height: 60px;
+      border: 5px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      border-top-color: var(--primary);
+      border-right-color: var(--accent);
+      animation: spin 1s linear infinite;
+      margin: 0 auto 1rem;
+    }
+
+    .spinner-text {
+      font-size: 1.2rem;
+      font-weight: 500;
+      margin-top: 1rem;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+}
+
+    @keyframes float {
+      0% { transform: translateY(0px); }
+      50% { transform: translateY(-8px); }
+      100% { transform: translateY(0px); }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: var(--primary);
+      color: white;
+      padding: 1rem 1.5rem;
+      border-radius: var(--radius-sm);
+      box-shadow: var(--shadow-lg);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      opacity: 0;
+      transition: all 0.3s ease;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    .toast.hide {
+      opacity: 0;
+      transform: translateX(-50%) translateY(100px);
+    }
+
+    .toast.success {
+      background-color: var(--success);
+    }
+
+    .toast.error {
+      background-color: var(--danger);
+    }
+
+    @media (max-width: 1024px) {
+      body {
+        grid-template: "header" auto "main" 1fr / 1fr;
+      }
+      .sidebar {
+        display: none;
+      }
+      .header {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 1.5rem;
+        padding: 1.5rem;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .main {
+        padding: 1.5rem;
+      }
+      .quiz-card {
+        padding: 1.75rem;
+      }
+      .quiz-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+      <!-- Global Loading Spinner -->
+  <div id="global-spinner">
+    <div class="spinner-content">
+      <div class="spinner-icon"></div>
+      <div class="spinner-text">Generating your quiz...</div>
+    </div>
+  </div>
+
+
+  <div class="layout">
+  <nav class="sidebar">
+    <h2>TinoBot Hub</h2>
+    <ul>
+      <li onclick="window.location.href='/dashboard'">
+        <i class="fas fa-comment-dots"></i> Chatbot
+      </li>
+      <li onclick="window.location.href='/research'">
+        <i class="fas fa-search"></i> Research
+      </li>
+      <li onclick="window.location.href='/summarize'">
+        <i class="fas fa-file-contract"></i> Summarize
+      </li>
+      <li class="active" onclick="window.location.href='/quiz_home'">
+        <i class="fas fa-question-circle"></i> Quiz
+      </li>
+      <li onclick="window.location.href='/progress'">
+        <i class="fas fa-chart-line"></i> Progress
+      </li>
+      <li onclick="window.location.href='/student_chat'">
+        <i class="fas fa-comments"></i> Chat with Teacher
+      </li>
+      <li onclick="window.location.href='/logout'">
+        <i class="fas fa-sign-out-alt"></i> Logout
+      </li>
+    </ul>
+  </nav>
+
+    <header class="header">
+      <h1>TinoBot Quiz Generator</h1>
+    </header>
+
+    <main class="main">
+
+
+      <div class="quiz-grid">
+        <!-- Topic-Based Quiz Card -->
+        <div class="quiz-card">
+          <div class="card-header">
+            <i class="fas fa-lightbulb"></i> Topic Quiz
+          </div>
+          <form method="POST" action="{{ url_for('quiz_home') }}" id="topicQuizForm">
+            <div class="form-group">
+              <label for="topic">Topic</label>
+              <input type="text" id="topic" name="topic" class="form-control" placeholder="e.g. Artificial Intelligence" required>
+            </div>
+            <div class="form-group">
+              <label for="num">Number of Questions</label>
+              <input type="number" id="num" name="num" class="form-control" value="5" min="1" max="20">
+            </div>
+            <button type="submit" class="submit-btn"><i class="fas fa-magic"></i> Generate Quiz</button>
+          </form>
+        </div>
+
+        <!-- Document-Based Quiz Card -->
+        <div class="quiz-card">
+          <div class="card-header">
+            <i class="fas fa-file-upload"></i> Document Quiz
+          </div>
+          <form method="POST" action="{{ url_for('upload_file') }}" enctype="multipart/form-data" id="documentQuizForm">
+            <div class="form-group">
+              <label for="file">Upload Document</label>
+              <input type="file" id="file" name="file" class="form-control" accept=".pdf,.docx,.txt" required>
+            </div>
+            <div class="form-group">
+              <label for="num">Number of Questions</label>
+              <input type="number" id="num" name="num" class="form-control" value="5" min="1" max="20">
+            </div>
+            <button type="submit" class="submit-btn"><i class="fas fa-upload"></i> Upload & Generate</button>
+          </form>
+        </div>
+      </div>
+    </main>
+  </div>
+
+    <script>
+    // Enhanced Loading Spinner Functions
+    function showSpinner(message = "Generating your quiz...") {
+      const spinner = document.getElementById('global-spinner');
+      const spinnerText = spinner.querySelector('.spinner-text');
+      spinnerText.textContent = message;
+      spinner.style.display = 'flex';
+      document.body.style.overflow = 'hidden';
+    }
+
+    function hideSpinner() {
+      document.getElementById('global-spinner').style.display = 'none';
+      document.body.style.overflow = '';
+    }
+
+    // Form submission handlers with loading states
+    document.getElementById('topicQuizForm').addEventListener('submit', function(e) {
+      if (!this.topic.value.trim()) {
+        e.preventDefault();
+        return;
+      }
+      // Only show spinner when the form is valid and being submitted
+      this.addEventListener('formdata', function() {
+        showSpinner("Creating questions about " + this.topic.value + "...");
+      });
+    });
+
+    document.getElementById('documentQuizForm').addEventListener('submit', function(e) {
+      if (!this.file.files.length) {
+        e.preventDefault();
+        return;
+      }
+      // Only show spinner when the form is valid and being submitted
+      this.addEventListener('formdata', function() {
+        showSpinner("Analyzing " + this.file.files[0].name + "...");
+      });
+    });
+
+    // Hide spinner when page is fully loaded (in case of form errors)
+    window.addEventListener('load', hideSpinner);
+
+    // Theme toggle functionality
+    const themeToggle = document.getElementById('themeToggle');
+    const body = document.body;
+
+    // Check for saved theme preference
+    if (localStorage.getItem('theme') === 'dark') {
+      body.setAttribute('data-theme', 'dark');
+      themeToggle.querySelector('i').classList.replace('fa-moon', 'fa-sun');
+    }
+
+    // Theme toggle click handler
+    themeToggle.addEventListener('click', () => {
+      if (body.getAttribute('data-theme') === 'dark') {
+        body.setAttribute('data-theme', 'light');
+        themeToggle.querySelector('i').classList.replace('fa-sun', 'fa-moon');
+        localStorage.setItem('theme', 'light');
+      } else {
+        body.setAttribute('data-theme', 'dark');
+        themeToggle.querySelector('i').classList.replace('fa-moon', 'fa-sun');
+        localStorage.setItem('theme', 'dark');
+      }
+    });
+
+    // Keyboard shortcut for theme toggle
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'd' && e.ctrlKey) {
+        themeToggle.click();
+        e.preventDefault();
+      }
+    });
+  </script>
+</body>
+</html>

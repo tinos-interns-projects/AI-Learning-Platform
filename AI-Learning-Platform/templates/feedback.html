@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block title %}Feedback - TinoBot AI{% endblock %}
+
+{% block content %}
+<div class="p-4 bg-light rounded-3 mb-4">
+    <div class="container-fluid py-3">
+        <h1 class="display-5 fw-bold">Share Your Feedback</h1>
+        <p class="col-md-8 fs-5">We value your input! Help us improve TinoBot AI.</p>
+    </div>
+</div>
+
+<div class="card shadow-sm">
+    <div class="card-body">
+        <h5 class="card-title">Feedback Form</h5>
+        <form method="POST" action="{{ url_for('personalized_feedback') }}"> 
+            {# You'll need a route in Flask to handle feedback submission e.g., /submit_feedback #}
+            <div class="mb-3">
+                <label for="feedback_name" class="form-label">Your Name (Optional):</label>
+                <input type="text" class="form-control" id="feedback_name" name="feedback_name" value="{{ name }}" readonly>
+            </div>
+            <div class="mb-3">
+                <label for="feedback_email" class="form-label">Your Email (Optional):</label>
+                <input type="email" class="form-control" id="feedback_email" name="feedback_email" placeholder="you@example.com">
+            </div>
+            <div class="mb-3">
+                <label for="feedback_subject" class="form-label">Subject:</label>
+                <input type="text" class="form-control" id="feedback_subject" name="feedback_subject" required>
+            </div>
+            <div class="mb-3">
+                <label for="feedback_message" class="form-label">Message:</label>
+                <textarea class="form-control" id="feedback_message" name="feedback_message" rows="6" required placeholder="Tell us what you think..."></textarea>
+            </div>
+            <button type="submit" class="btn btn-primary">
+                <i class="fas fa-paper-plane me-2"></i>Send Feedback
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}
+<script>async function submitProgress(score, timeSpent, feedback) {
+  await fetch('/submit_progress', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({
+      quiz_score: score,
+      time_spent: timeSpent,
+      feedback: feedback
+    })
+  });
+}
+
+async function getFeedback() {
+  const res = await fetch('/personalized_feedback');
+  const data = await res.json();
+  alert(`Your avg score: ${data.average_score}\nFeedback: ${data.suggestion}`);
+}
+</script>

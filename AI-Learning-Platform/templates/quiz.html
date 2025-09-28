@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Take Quiz - {{ session.quiz_topic }}</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body {
+      background-color: #f8f9fa;
+    }
+    .quiz-container {
+      max-width: 800px;
+      margin: 0 auto;
+    }
+    .question-card {
+      background-color: white;
+      border-radius: 8px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      position: relative;
+    }
+    .form-check-input:checked {
+      background-color: #198754;
+      border-color: #198754;
+    }
+    .submit-btn {
+      width: 100%;
+      max-width: 200px;
+      margin: 1rem auto;
+      display: block;
+    }
+    .timer {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      font-size: 1.2rem;
+      font-weight: bold;
+      color: #dc3545;
+    }
+    .question-container {
+      display: none;
+    }
+    .question-container.active {
+      display: block;
+    }
+    .progress-container {
+      margin-bottom: 1rem;
+    }
+    .button-container {
+      display: flex;
+      justify-content: flex-end;
+    }
+  </style>
+</head>
+<body class="py-4">
+  <div class="quiz-container">
+    <div class="text-center mb-4">
+      <h2>Quiz {{ session.quiz_topic }}</h2>
+      <p class="text-muted">Answer all questions to submit</p>
+      <div class="progress-container">
+        <div class="progress">
+          <div class="progress-bar" role="progressbar" style="width: 0%"></div>
+        </div>
+        <small>Question <span class="current-question">1</span> of {{ quiz|length }}</small>
+      </div>
+    </div>
+
+    <form action="{{ url_for('take_quiz') }}" method="post" id="quizForm">
+      {% for q in quiz %}
+        {% set q_index = loop.index0 %}
+        <div class="question-container {% if loop.first %}active{% endif %}" id="question-{{ q_index }}">
+          <div class="question-card">
+            <div class="timer" id="timer-{{ q_index }}">30</div>
+            <h5 class="mb-3">{{ loop.index }}. {{ q.question }}</h5>
+            {% for opt in q.options %}
+              <div class="form-check mb-2">
+                <input class="form-check-input" type="radio" 
+                       name="q{{ q_index }}" 
+                       id="q{{ q_index }}_{{ loop.index0 }}" 
+                       value="{{ loop.index0 }}" required>
+                <label class="form-check-label" for="q{{ q_index }}_{{ loop.index0 }}">
+                  {{ 'ABCD'[loop.index0] }}. {{ opt }}
+                </label>
+              </div>
+            {% endfor %}
+          </div>
+          <div class="button-container mt-3" id="buttons-{{ q_index }}">
+            {% if not loop.last %}
+              <button type="button" class="btn btn-primary next-btn">Next</button>
+            {% else %}
+              <button type="submit" class="btn btn-success">Submit Quiz</button>
+            {% endif %}
+          </div>
+        </div>
+      {% endfor %}
+    </form>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      const questionContainers = document.querySelectorAll('.question-container');
+      const progressBar = document.querySelector('.progress-bar');
+      const currentQuestionDisplay = document.querySelector('.current-question');
+      let currentQuestion = 0;
+      let timers = [];
+
+      // Initialize timers for each question
+      questionContainers.forEach((container, index) => {
+        const timerElement = document.getElementById(`timer-${index}`);
+        const buttonContainer = document.getElementById(`buttons-${index}`);
+        let timeLeft = 30;
+        let timer;
+
+        function startTimer() {
+          clearInterval(timer);
+          timeLeft = 30;
+          timerElement.textContent = timeLeft;
+
+          timer = setInterval(() => {
+            timeLeft--;
+            timerElement.textContent = timeLeft;
+
+            if (timeLeft <= 0) {
+              clearInterval(timer);
+              // Auto move to next question if time runs out
+              if (index < questionContainers.length - 1) {
+                goToQuestion(index + 1);
+              } else {
+                document.getElementById('quizForm').submit();
+              }
+            }
+          }, 1000);
+
+          return timer;
+        }
+
+        timers[index] = {
+          element: timerElement,
+          timeLeft: timeLeft,
+          timer: null,
+          startTimer: startTimer
+        };
+      });
+
+      // Function to update progress bar
+      function updateProgress() {
+        const progress = ((currentQuestion + 1) / questionContainers.length) * 100;
+        progressBar.style.width = `${progress}%`;
+        currentQuestionDisplay.textContent = currentQuestion + 1;
+      }
+
+      // Function to navigate to a specific question
+      function goToQuestion(index) {
+        if (index >= 0 && index < questionContainers.length) {
+          if (timers[currentQuestion]) {
+            clearInterval(timers[currentQuestion].timer);
+          }
+          questionContainers[currentQuestion].classList.remove('active');
+          currentQuestion = index;
+          questionContainers[currentQuestion].classList.add('active');
+
+          if (timers[currentQuestion]) {
+            timers[currentQuestion].timer = timers[currentQuestion].startTimer();
+          }
+
+          updateProgress();
+        }
+      }
+
+      // Next button handler
+      document.querySelectorAll('.next-btn').forEach(button => {
+        button.addEventListener('click', function() {
+          goToQuestion(currentQuestion + 1);
+        });
+      });
+
+      // Start timer for first question
+      if (timers[0]) {
+        timers[0].timer = timers[0].startTimer();
+      }
+      updateProgress();
+
+      // Clear all timers on form submit
+      document.getElementById('quizForm').addEventListener('submit', function() {
+        timers.forEach(timer => {
+          if (timer && timer.timer) {
+            clearInterval(timer.timer);
+          }
+        });
+      });
+    });
+  </script>
+</body>
+</html>

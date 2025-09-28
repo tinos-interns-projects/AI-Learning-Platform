@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Select Teacher – TinoBot</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"/>
+  <style>
+    :root {
+      --primary: #4a6bff;
+      --primary-light: #6a85ff;
+      --text-light: #ffffff;
+      --border-radius: 12px;
+    }
+
+    body {
+      font-family: "Poppins", sans-serif;
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* Fullscreen iframe as underlay */
+    .background-iframe {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      z-index: -3;
+      border: none;
+      pointer-events: none;
+    }
+
+    /* Blur effect over iframe */
+    .background-blur {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      backdrop-filter: blur(8px);
+      z-index: -2;
+    }
+
+    .selection-box {
+      position: relative;
+      width: 350px;
+      height: 500px;
+      margin: auto;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(255, 255, 255, 0.95);
+      border-radius: var(--border-radius);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(5px);
+      z-index: 1;
+    }
+
+    h2 {
+      color: var(--primary);
+      margin: 0 0 20px 0;
+      font-size: 1.3rem;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+    }
+
+    .teacher-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      flex: 1;
+      overflow-y: auto;
+    }
+
+    .teacher-item {
+      margin-bottom: 10px;
+    }
+
+    .teacher-link {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 15px;
+      background: white;
+      color: #333;
+      border-radius: 8px;
+      text-decoration: none;
+      transition: all 0.2s ease;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    }
+
+    .teacher-link:hover {
+      background: #f5f7ff;
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(74, 107, 255, 0.1);
+    }
+
+    .teacher-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary), var(--primary-light));
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .teacher-info {
+      flex: 1;
+    }
+
+    .teacher-name {
+      font-weight: 500;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .teacher-id {
+      font-size: 0.75rem;
+      color: #666;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .close-btn {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      background: rgba(0, 0, 0, 0.1);
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #666;
+      cursor: pointer;
+      border: none;
+    }
+
+    .close-btn:hover {
+      background: rgba(0, 0, 0, 0.2);
+      color: #333;
+    }
+  </style>
+</head>
+<body>
+  <!-- Background Student Dashboard -->
+  <iframe src="/dashboard" class="background-iframe"></iframe>
+  <div class="background-blur"></div>
+
+  <!-- Chat Teacher Selection UI -->
+  <div class="selection-box">
+    <button class="close-btn" onclick="window.history.back()">
+      <i class="fas fa-times"></i>
+    </button>
+    <h2><i class="fas fa-comments"></i> Select Teacher</h2>
+    <ul class="teacher-list">
+      {% for t in teachers %}
+      <li class="teacher-item">
+        <a href="{{ url_for('student_chat_room', teacher_id=t.teacher_id) }}" class="teacher-link">
+          <div class="teacher-avatar">
+            <i class="fas fa-chalkboard-teacher"></i>
+          </div>
+          <div class="teacher-info">
+            <div class="teacher-name">{{ t.name }}</div>
+            <div class="teacher-id">{{ t.teacher_id }}</div>
+          </div>
+          <i class="fas fa-chevron-right"></i>
+        </a>
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
+</body>
+</html>

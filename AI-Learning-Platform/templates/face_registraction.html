@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Face Registration</h2>
+    
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">Register Your Face</h5>
+            <p>Please follow these instructions:</p>
+            <ol>
+                <li>Sit in a well-lit area</li>
+                <li>Look directly at the camera</li>
+                <li>Remove any glasses or hats</li>
+                <li>Make sure your face is clearly visible</li>
+            </ol>
+            
+            <div class="face-registration-container">
+                <div id="webcamPlaceholder" class="webcam-placeholder">
+                    <i class="fas fa-camera fa-5x"></i>
+                    <p>Click below to start camera</p>
+                </div>
+                <video id="videoElement" style="display: none;"></video>
+                <canvas id="canvasElement" style="display: none;"></canvas>
+                
+                <div class="d-flex gap-2 mt-3">
+                    <button id="startCamera" class="btn btn-primary">
+                        <i class="fas fa-video"></i> Start Camera
+                    </button>
+                    <button id="captureBtn" class="btn btn-success" disabled>
+                        <i class="fas fa-camera"></i> Capture
+                    </button>
+                    <button id="retakeBtn" class="btn btn-warning" disabled>
+                        <i class="fas fa-redo"></i> Retake
+                    </button>
+                </div>
+                
+                <div class="mt-3">
+                    <img id="facePreview" style="display: none; max-width: 100%;">
+                    <div id="faceStatus" class="face-status unregistered">
+                        <i class="fas fa-times-circle me-1"></i> Face not registered
+                    </div>
+                </div>
+                
+                <button id="registerFaceBtn" class="btn btn-primary mt-3" disabled>
+                    Register Face
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Include your camera JavaScript here -->
+<script src="{{ url_for('static', filename='js/face_registration.js') }}"></script>
+{% endblock %}

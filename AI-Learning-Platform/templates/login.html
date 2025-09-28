@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Login Portal</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+    
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: linear-gradient(-45deg, #ee7752, #2e2528, #23a6d5, #23d5ab);
+      background-size: 400% 400%;
+      animation: gradient 15s ease infinite;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    @keyframes gradient {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .container {
+      display: flex;
+      gap: 2rem;
+      z-index: 10;
+      padding: 20px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .card {
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-radius: 20px;
+      padding: 2.5rem;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+      width: 320px;
+      text-align: center;
+      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      border: 1px solid rgba(255, 255, 255, 0.18);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .card:hover {
+      transform: translateY(-10px) scale(1.02);
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
+    }
+
+    .card h2 {
+      margin-top: 0;
+      font-size: 26px;
+      margin-bottom: 1.5rem;
+      color: white;
+      font-weight: 600;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+
+    .avatar {
+      width: 110px;
+      height: 110px;
+      margin: 0 auto 1.8rem;
+      border-radius: 50%;
+      border: 3px solid rgba(255, 255, 255, 0.6);
+      object-fit: cover;
+      transition: all 0.4s ease;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+
+    .card:hover .avatar {
+      transform: scale(1.1);
+      border-color: white;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.15);
+    }
+
+    .form-container {
+      width: 100%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    input {
+      width: 100%;
+      max-width: 260px;
+      padding: 14px 18px;
+      margin: 0.5rem 0;
+      font-size: 1rem;
+      background: rgba(255, 255, 255, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      border-radius: 12px;
+      outline: none;
+      transition: all 0.3s;
+      color: white;
+      text-align: center;
+    }
+
+    input::placeholder {
+      color: rgba(255, 255, 255, 0.7);
+      text-align: center;
+    }
+
+    input:focus {
+      background: rgba(255, 255, 255, 0.3);
+      border-color: white;
+      box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1);
+    }
+
+    button {
+      width: 100%;
+      max-width: 260px;
+      padding: 14px;
+      background: rgba(255, 255, 255, 0.3);
+      color: white;
+      font-size: 1rem;
+      font-weight: 600;
+      border: 1px solid rgba(255, 255, 255, 0.5);
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-top: 1rem;
+      backdrop-filter: blur(5px);
+      letter-spacing: 0.5px;
+    }
+
+    button:hover {
+      background: rgba(255, 255, 255, 0.4);
+      transform: translateY(-3px);
+      box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    }
+
+    .floating-bubbles {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      top: 0;
+      left: 0;
+      z-index: 1;
+    }
+
+    .bubble {
+      position: absolute;
+      bottom: -100px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 50%;
+      animation: floating 15s infinite ease-in;
+      filter: blur(1px);
+    }
+
+    @keyframes floating {
+      0% {
+        transform: translateY(0) rotate(0deg);
+        opacity: 0.8;
+        bottom: -100px;
+      }
+      100% {
+        transform: translateY(-1000px) rotate(720deg);
+        opacity: 0;
+        bottom: 100%;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        flex-direction: column;
+        gap: 1.5rem;
+      }
+      
+      .card {
+        width: 100%;
+        max-width: 350px;
+        padding: 2rem;
+      }
+      
+      input, button {
+        max-width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="floating-bubbles" id="bubbles"></div>
+  <div class="container">
+    <!-- Teacher Login -->
+    <div class="card">
+      <h2>Teacher</h2>
+      <img src="{{ url_for('static', filename='teacher-avatar.png') }}" alt="Teacher" class="avatar">
+      <div class="form-container">
+        <form method="POST" action="{{ url_for('login') }}">
+          <input type="hidden" name="user_type" value="teacher">
+          <input type="text" name="name" placeholder="Name" required>
+          <input type="password" name="user_id" placeholder="Password" required>
+          <button type="submit">Login</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Student Login -->
+    <div class="card">
+      <h2>Student</h2>
+      <img src="{{ url_for('static', filename='student-avatar.png') }}" alt="Student" class="avatar">
+      <div class="form-container">
+        <form method="POST" action="{{ url_for('login') }}">
+          <input type="hidden" name="user_type" value="student">
+          <input type="text" name="name" placeholder="Name" required>
+          <input type="password" name="user_id" placeholder="Password" required>
+          <button type="submit">Login</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Create floating bubbles
+    const bubblesContainer = document.getElementById('bubbles');
+    const bubbleCount = 25;
+    
+    for (let i = 0; i < bubbleCount; i++) {
+      const bubble = document.createElement('div');
+      bubble.classList.add('bubble');
+      
+      // Random size between 40px and 120px
+      const size = Math.random() * 80 + 40;
+      bubble.style.width = `${size}px`;
+      bubble.style.height = `${size}px`;
+      
+      // Random position
+      bubble.style.left = `${Math.random() * 100}%`;
+      
+      // Random animation duration between 10s and 20s
+      bubble.style.animationDuration = `${Math.random() * 10 + 10}s`;
+      
+      // Random delay
+      bubble.style.animationDelay = `${Math.random() * 5}s`;
+      
+      bubblesContainer.appendChild(bubble);
+    }
+
+    // Add ripple effect to buttons
+    const buttons = document.querySelectorAll('button');
+    buttons.forEach(button => {
+      button.addEventListener('click', function(e) {
+        const x = e.clientX - e.target.getBoundingClientRect().left;
+        const y = e.clientY - e.target.getBoundingClientRect().top;
+        
+        const ripple = document.createElement('span');
+        ripple.classList.add('ripple');
+        ripple.style.left = `${x}px`;
+        ripple.style.top = `${y}px`;
+        
+        this.appendChild(ripple);
+        
+        setTimeout(() => {
+          ripple.remove();
+        }, 1000);
+      });
+    });
+  </script>
+</body>
+</html>

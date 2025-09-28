@@ -1,0 +1,877 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="theme-color" content="#0056b3" />
+  <title>🔍 TinoBot Research Hub</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
+  <style>
+    :root {
+      --primary: #4361ee;
+      --primary-light: #e0e7ff;
+      --secondary: #7209b7;
+      --accent: #3a0ca3;
+      --success: #4cc9f0;
+      --warning: #f8961e;
+      --danger: #f72585;
+      --light: #f8f9fa;
+      --dark: #212529;
+      --gray: #6c757d;
+      --card-bg: #ffffff;
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.12);
+      --shadow-md: 0 4px 6px rgba(0,0,0,0.1);
+      --shadow-lg: 0 10px 15px rgba(0,0,0,0.1);
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+    }
+
+    [data-theme="dark"] {
+      --primary: #4895ef;
+      --primary-light: #1a1b41;
+      --secondary: #b5179e;
+      --accent: #560bad;
+      --light: #2b2d42;
+      --dark: #f8f9fa;
+      --gray: #adb5bd;
+      --card-bg: #1a1b41;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      min-height: 100vh;
+      color: var(--dark);
+      background-color: var(--light);
+      display: grid;
+      grid-template: "sidebar header" auto "sidebar main" 1fr / minmax(280px, 18%) 1fr;
+      line-height: 1.6;
+      transition: var(--transition);
+    }
+
+    .sidebar {
+      grid-area: sidebar;
+      background: linear-gradient(135deg, var(--primary) 0%, var(--accent) 100%);
+      color: white;
+      padding: 2rem 1.5rem;
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+      z-index: 100;
+    }
+
+    .sidebar h2 {
+      font-size: 1.75rem;
+      margin-bottom: 2rem;
+      text-align: center;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
+    }
+
+    .sidebar h2::before {
+      content: "";
+      font-size: 1.5em;
+    }
+
+    .sidebar ul {
+      list-style: none;
+      margin-top: 1rem;
+    }
+
+    .sidebar li {
+      padding: 0.9rem 1.2rem;
+      margin-bottom: 0.5rem;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: var(--transition);
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      font-weight: 500;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .sidebar li::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0;
+      height: 100%;
+      width: 4px;
+      background: white;
+      transform: translateX(-10px);
+      opacity: 0;
+      transition: var(--transition);
+    }
+
+    .sidebar li:hover {
+      background: rgba(255, 255, 255, 0.15);
+      transform: translateX(5px);
+    }
+
+    .sidebar li:hover::before {
+      transform: translateX(0);
+      opacity: 1;
+    }
+
+    .sidebar li.active {
+      background: rgba(255, 255, 255, 0.25);
+      font-weight: 600;
+    }
+
+    .sidebar li.active::before {
+      transform: translateX(0);
+      opacity: 1;
+    }
+
+    .sidebar li i {
+      font-size: 1.1rem;
+      width: 24px;
+      text-align: center;
+    }
+
+    .header {
+      grid-area: header;
+      background-color: var(--card-bg);
+      padding: 1.5rem 2.5rem;
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 2rem;
+      z-index: 10;
+      position: sticky;
+      top: 0;
+    }
+
+    .header-content {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      gap: 2rem;
+    }
+
+    .header h1 {
+      font-size: 1.8rem;
+      color: var(--primary);
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      white-space: nowrap;
+      min-width: max-content;
+    }
+
+    .header h1::before {
+      content: "";
+      font-size: 1.5em;
+      animation: float 3s ease-in-out infinite;
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .search-bar {
+      display: flex;
+      align-items: center;
+      flex-grow: 1;
+      max-width: 600px;
+    }
+
+    .search-bar form {
+      display: flex;
+      width: 100%;
+    }
+
+    .search-bar input {
+      width: 100%;
+      padding: 0.75rem 1.25rem;
+      font-size: 1rem;
+      border: 2px solid var(--primary-light);
+      border-radius: var(--radius-sm) 0 0 var(--radius-sm);
+      background-color: var(--card-bg);
+      color: var(--dark);
+      transition: var(--transition);
+      font-family: 'Poppins', sans-serif;
+    }
+
+    .search-bar input:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 4px rgba(67, 97, 238, 0.2);
+      outline: none;
+    }
+
+    .search-bar button {
+      padding: 0 1.5rem;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+      cursor: pointer;
+      transition: var(--transition);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .search-bar button:hover {
+      background: var(--accent);
+    }
+
+    .theme-toggle {
+      background: var(--primary-light);
+      border: none;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: var(--transition);
+      color: var(--primary);
+    }
+
+    .theme-toggle:hover {
+      transform: rotate(30deg) scale(1.1);
+    }
+
+    .main {
+      grid-area: main;
+      padding: 2.5rem;
+      overflow-y: auto;
+      background-color: var(--light);
+    }
+
+    .results-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .paper-card {
+      background-color: var(--card-bg);
+      padding: 2rem;
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-sm);
+      transition: var(--transition);
+      border-top: 4px solid var(--primary);
+    }
+
+    .paper-card:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .paper-card h3 {
+      margin-top: 0;
+      color: var(--primary);
+      font-size: 1.5rem;
+      font-weight: 600;
+    }
+
+    .paper-card p {
+      margin: 0.75rem 0;
+      color: var(--dark);
+      line-height: 1.8;
+    }
+
+    .paper-card a.read-more {
+      display: inline-block;
+      padding: 0.75rem 1.5rem;
+      background: var(--primary);
+      color: white;
+      text-decoration: none;
+      border-radius: var(--radius-sm);
+      font-weight: 500;
+      cursor: pointer;
+      transition: var(--transition);
+      margin-top: 1rem;
+    }
+
+    .paper-card a.read-more:hover {
+      background: var(--accent);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .paper-card .actions {
+      margin-top: 1.5rem;
+      display: flex;
+      gap: 0.75rem;
+    }
+
+    .action-btn {
+      padding: 0.75rem 1.5rem;
+      border: none;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      font-size: 0.95rem;
+      font-weight: 500;
+      transition: var(--transition);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      box-shadow: var(--shadow-sm);
+    }
+
+    .copy-btn {
+      background-color: var(--success);
+      color: white;
+    }
+
+    .copy-btn:hover {
+      background-color: #3db5d8;
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .save-btn {
+      background-color: var(--warning);
+      color: var(--dark);
+    }
+
+    .save-btn:hover {
+      background-color: #e07b00;
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .no-results {
+      text-align: center;
+      padding: 2rem;
+      background-color: var(--card-bg);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-sm);
+      color: var(--gray);
+      border-top: 4px solid var(--primary);
+      animation: fadeIn 0.8s ease-out;
+    }
+
+    .features-section {
+      margin: 3rem 0;
+      padding: 2.5rem;
+      background-color: var(--card-bg);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-sm);
+      border-top: 4px solid var(--primary);
+    }
+
+    .section-title {
+      text-align: center;
+      margin-bottom: 1.5rem;
+      color: var(--primary);
+      font-size: 1.5rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .feature-card {
+      background-color: var(--card-bg);
+      padding: 2rem;
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-sm);
+      transition: var(--transition);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      border-top: 4px solid var(--primary);
+    }
+
+    .feature-card:hover {
+      transform: translateY(-3px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .feature-icon {
+      font-size: 2rem;
+      color: var(--primary);
+      margin-bottom: 1rem;
+      background-color: rgba(67, 97, 238, 0.1);
+      width: 60px;
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+    }
+
+    .feature-card h4 {
+      margin: 0.5rem 0;
+      color: var(--primary);
+      font-size: 1.2rem;
+      font-weight: 600;
+    }
+
+    .feature-card p {
+      color: var(--gray);
+    }
+
+    .pagination {
+      margin-top: 2rem;
+      text-align: center;
+      display: flex;
+      justify-content: center;
+      gap: 0.75rem;
+    }
+
+    .pagination button {
+      padding: 0.75rem 1.5rem;
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      font-size: 0.95rem;
+      font-weight: 500;
+      transition: var(--transition);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .pagination button:hover {
+      background: var(--accent);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+
+    .pagination button:disabled {
+      background: var(--gray);
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .pagination span {
+      padding: 0.75rem 1rem;
+      color: var(--primary);
+      font-weight: 500;
+    }
+
+    /* Global Spinner Styles */
+    #global-spinner {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 9999;
+      backdrop-filter: blur(3px);
+    }
+
+    .spinner-content {
+      text-align: center;
+      color: white;
+    }
+
+    .spinner-icon {
+      width: 60px;
+      height: 60px;
+      border: 5px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      border-top-color: var(--primary);
+      border-right-color: var(--accent);
+      animation: spin 1s linear infinite;
+      margin: 0 auto 1rem;
+    }
+
+    .spinner-text {
+      font-size: 1.2rem;
+      font-weight: 500;
+      margin-top: 1rem;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }  
+
+    /* Toast Notification */
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: var(--primary);
+      color: white;
+      padding: 1rem 1.5rem;
+      border-radius: var(--radius-sm);
+      box-shadow: var(--shadow-lg);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      opacity: 0;
+      transition: all 0.3s ease;
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    .toast.hide {
+      opacity: 0;
+      transform: translateX(-50%) translateY(100px);
+    }
+
+    .toast.success {
+      background-color: var(--success);
+    }
+
+    .toast.error {
+      background-color: var(--danger);
+    }
+
+    /* Animations */
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    @keyframes dots {
+      0%, 20% { content: '.'; }
+      40% { content: '..'; }
+      60% { content: '...'; }
+      80%, 100% { content: ''; }
+    }
+
+    @keyframes float {
+      0% { transform: translateY(0px); }
+      50% { transform: translateY(-8px); }
+      100% { transform: translateY(0px); }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (max-width: 1024px) {
+      body {
+        grid-template: "header" auto "main" 1fr / 1fr;
+      }
+      .sidebar {
+        display: none;
+      }
+      .header {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 1.5rem;
+        padding: 1.5rem;
+      }
+      .header-content {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 1rem;
+      }
+      .search-bar {
+        max-width: 100%;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .main {
+        padding: 1.5rem;
+      }
+      .paper-card, .features-section, .feature-card {
+        padding: 1.75rem;
+      }
+      .results-grid, .features-grid {
+        grid-template-columns: 1fr;
+      }
+      .paper-card .actions {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <nav class="sidebar">
+    <h2>TinoBot Hub</h2>
+    <ul>
+      <li onclick="window.location.href='/dashboard'">
+        <i class="fas fa-comment-dots"></i> Chatbot
+      </li>
+      <li class="active" onclick="window.location.href='/research'">
+        <i class="fas fa-search"></i> Research
+      </li>
+      <li onclick="window.location.href='/summarize'">
+        <i class="fas fa-file-contract"></i> Summarize
+      </li>
+      <li onclick="window.location.href='/quiz_home'">
+        <i class="fas fa-question-circle"></i> Quiz
+      </li>
+      <li onclick="window.location.href='/progress'">
+        <i class="fas fa-chart-line"></i> Progress
+      </li>
+      <li onclick="window.location.href='/student_chat'">
+        <i class="fas fa-comments"></i> Chat with Teacher
+      </li>
+      <li onclick="window.location.href='/logout'">
+        <i class="fas fa-sign-out-alt"></i> Logout
+      </li>
+    </ul>
+  </nav>
+
+  <header class="header" role="banner">
+    <div class="header-content">
+      <h1>TinoBot Research Hub</h1>
+      <div class="search-bar">
+        <form method="post" novalidate id="searchForm">
+          <input type="text" name="query" placeholder="Search research papers..." required aria-label="Search research papers" />
+          <button type="submit" aria-label="Submit search"><i class="fas fa-search"></i></button>
+        </form>
+      </div>
+    </div>
+  </header>
+
+  <main class="main" role="main">
+    {% if results is defined %}
+      <div class="results-grid" aria-live="polite">
+        {% if results %}
+          {% for paper in results %}
+            <div class="paper-card" role="article">
+              <h3>{{ paper.title }}</h3>
+              <p><strong>Authors:</strong> {{ paper.authors if paper.authors else "Unknown" }}</p>
+              <p><strong>Year:</strong> {{ paper.year }}</p>
+              <p><strong>Abstract:</strong> {{ paper.abstract|truncate(150, true, '...') if paper.abstract else "No abstract available" }}</p>
+              {% if paper.link %}
+                <a href="{{ paper.link }}" target="_blank" rel="noopener noreferrer" class="read-more" aria-label="View paper">Read More</a>
+              {% else %}
+                <p><em>No link available.</em></p>
+              {% endif %}
+              <div class="actions">
+                <button class="action-btn copy-btn" onclick="copyToClipboard('{{ paper.abstract|safe if paper.abstract else 'No abstract available' }}')" aria-label="Copy abstract">
+                  <i class="fas fa-copy"></i> Copy
+                </button>
+              </div>
+            </div>
+          {% endfor %}
+        {% else %}
+          <div class="no-results" role="alert">
+            <p>No results found. Try adjusting your search terms.</p>
+          </div>
+        {% endif %}
+      </div>
+    {% else %}
+      <div class="no-results" role="status">
+        <p>Enter a search query to begin exploring research papers.</p>
+      </div>
+      <div class="features-section">
+        <h3 class="section-title">✨ Discover Research Made Easy</h3>
+        <div class="features-grid">
+          <div class="feature-card" role="article">
+            <i class="fas fa-search feature-icon"></i>
+            <h4>Comprehensive Search</h4>
+            <p>Access millions of research papers across all academic disciplines with our powerful search engine.</p>
+          </div>
+          <div class="feature-card" role="article">
+            <i class="fas fa-filter feature-icon"></i>
+            <h4>Smart Filters</h4>
+            <p>Narrow down results by year, author, citations, and more to find exactly what you need.</p>
+          </div>
+          <div class="feature-card" role="article">
+            <i class="fas fa-bookmark feature-icon"></i>
+            <h4>Save & Organize</h4>
+            <p>Bookmark important papers and organize them into collections for easy access later.</p>
+          </div>
+        </div>
+      </div>
+    {% endif %}
+  </main>
+
+    <!-- Global Loading Spinner -->
+  <div id="global-spinner">
+    <div class="spinner-content">
+      <div class="spinner-icon"></div>
+      <div class="spinner-text">Searching research papers...</div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div id="toast" class="toast">
+    <i class="fas fa-check-circle"></i>
+    <span id="toast-message">Success!</span>
+  </div>
+
+ <script>
+    // Show/hide spinner functions
+    function showSpinner() {
+      document.getElementById('global-spinner').style.display = 'flex';
+      document.body.style.overflow = 'hidden';
+    }
+
+    function hideSpinner() {
+      document.getElementById('global-spinner').style.display = 'none';
+      document.body.style.overflow = '';
+    }
+
+    // Show toast notification
+    function showToast(message, type) {
+      const toast = document.getElementById('toast');
+      const toastMessage = document.getElementById('toast-message');
+      
+      toast.className = `toast ${type}`;
+      toastMessage.textContent = message;
+      
+      toast.classList.add('show');
+      setTimeout(() => {
+        toast.classList.remove('show');
+        toast.classList.add('hide');
+        setTimeout(() => {
+          toast.classList.remove('hide');
+        }, 300);
+      }, 3000);
+    }
+
+    // Copy to clipboard function
+    function copyToClipboard(text) {
+      navigator.clipboard.writeText(text)
+        .then(() => showToast('Copied to clipboard!', 'success'))
+        .catch(err => {
+          console.error('Failed to copy:', err);
+          showToast('Failed to copy text', 'error');
+        });
+    }
+
+    // Form submission handler
+    document.getElementById('searchForm').addEventListener('submit', function(e) {
+      showSpinner();
+    });
+
+    // Initialize when DOM is loaded
+    document.addEventListener('DOMContentLoaded', function() {
+      hideSpinner();
+      
+      // Hide spinner when results are loaded (or if there's an error)
+      {% if results is defined %}
+        hideSpinner();
+      {% endif %}
+
+      // Initialize theme toggle
+      initThemeToggle();
+    });
+
+    // Enhanced Theme Toggle Functionality
+    function initThemeToggle() {
+      // Create theme toggle button if it doesn't exist
+      let themeToggle = document.getElementById('themeToggle');
+      if (!themeToggle) {
+        themeToggle = document.createElement('button');
+        themeToggle.className = 'theme-toggle';
+        themeToggle.innerHTML = '<i class="fas fa-moon"></i>';
+        themeToggle.id = 'themeToggle';
+        themeToggle.title = 'Toggle Dark Mode (Ctrl+D)';
+        
+        // Add to header actions or create container if needed
+        const headerActions = document.querySelector('.header-actions') || document.createElement('div');
+        if (!document.querySelector('.header-actions')) {
+          headerActions.className = 'header-actions';
+          document.querySelector('header').appendChild(headerActions);
+        }
+        headerActions.appendChild(themeToggle);
+      }
+
+      const body = document.body;
+      const html = document.documentElement;
+
+      // Check for saved theme preference or system preference
+      function setInitialTheme() {
+        const savedTheme = localStorage.getItem('theme');
+        const systemPrefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+        
+        if (savedTheme === 'dark' || (!savedTheme && systemPrefersDark)) {
+          enableDarkMode();
+        } else {
+          enableLightMode();
+        }
+      }
+
+      function enableDarkMode() {
+        body.setAttribute('data-theme', 'dark');
+        html.classList.add('dark-mode');
+        themeToggle.querySelector('i').classList.replace('fa-moon', 'fa-sun');
+        localStorage.setItem('theme', 'dark');
+      }
+
+      function enableLightMode() {
+        body.setAttribute('data-theme', 'light');
+        html.classList.remove('dark-mode');
+        themeToggle.querySelector('i').classList.replace('fa-sun', 'fa-moon');
+        localStorage.setItem('theme', 'light');
+      }
+
+      // Theme toggle click handler
+      themeToggle.addEventListener('click', () => {
+        if (body.getAttribute('data-theme') === 'dark') {
+          enableLightMode();
+        } else {
+          enableDarkMode();
+        }
+      });
+
+      // Watch for system theme changes
+      window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+        if (!localStorage.getItem('theme')) {
+          e.matches ? enableDarkMode() : enableLightMode();
+        }
+      });
+
+      // Keyboard shortcut for theme toggle
+      document.addEventListener('keydown', (e) => {
+        if (e.key === 'd' && (e.ctrlKey || e.metaKey)) {
+          themeToggle.click();
+          e.preventDefault();
+        }
+      });
+
+      // Set initial theme
+      setInitialTheme();
+    }
+
+    // Sidebar navigation
+    document.querySelectorAll('.sidebar li').forEach(item => {
+      item.addEventListener('click', function() {
+        const url = this.getAttribute('onclick').match(/'([^']+)'/)[1];
+        try {
+          window.location.href = url;
+          document.querySelectorAll('.sidebar li').forEach(li => li.classList.remove('active'));
+          this.classList.add('active');
+        } catch (error) {
+          console.error('Navigation error:', error);
+        }
+      });
+    });
+</script>
+</body>
+</html>

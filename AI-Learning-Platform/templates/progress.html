@@ -1,0 +1,871 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Progress Tracker</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        :root {
+            --primary-color: #4e73df;
+            --secondary-color: #858796;
+            --success-color: #1cc88a;
+            --info-color: #36b9cc;
+            --warning-color: #f6c23e;
+            --danger-color: #e74a3b;
+            --light-color: #f8f9fc;
+            --dark-color: #5a5c69;
+        }
+
+        body {
+            font-family: 'Nunito', sans-serif;
+            background-color: #f8f9fc;
+            color: #333;
+        }
+
+        .card {
+            border: none;
+            border-radius: 0.5rem;
+            box-shadow: 0 0.15rem 1rem 0 rgba(58, 59, 69, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            margin-bottom: 1.5rem;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 0.5rem 1.5rem 0 rgba(58, 59, 69, 0.15);
+        }
+
+        /* Updated Chart container styles - removed scroll container */
+        .chart-container {
+            position: relative;
+            width: 100%;
+            height: 360px;
+            padding: 1rem;
+            background-color: #fff;
+            border-radius: 0.5rem;
+        }
+
+        .chart-container canvas {
+            display: block;
+            width: 100% !important;
+            height: 100% !important;
+        }
+
+        /* Rest of your existing styles... */
+        .progress-card {
+            border-left: 0.25rem solid var(--primary-color);
+        }
+
+        .time-card {
+            border-left: 0.25rem solid var(--success-color);
+        }
+
+        .questions-card {
+            border-left: 0.25rem solid var(--info-color);
+        }
+
+        .score-card {
+            border-left: 0.25rem solid var(--warning-color);
+        }
+
+        .topic-badge {
+            font-size: 0.8rem;
+            font-weight: 600;
+            padding: 0.35rem 0.65rem;
+            border-radius: 0.25rem;
+        }
+
+        .progress-table th {
+            border-top: none;
+            font-weight: 600;
+            color: var(--secondary-color);
+            text-align: center;
+            background-color: #f8f9fa;
+        }
+
+        .progress-table td {
+            text-align: center;
+            vertical-align: middle;
+        }
+
+        .topic-progress {
+            margin-bottom: 2rem;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .topic-header {
+            background-color: var(--light-color);
+            padding: 1rem 1.5rem;
+            border-radius: 0.5rem 0.5rem 0 0;
+            font-weight: 600;
+            color: var(--dark-color);
+            border-bottom: 1px solid rgba(0,0,0,0.05);
+        }
+
+        .summary-card {
+            height: 100%;
+        }
+
+        .summary-card .card-body {
+            padding: 1.5rem;
+        }
+
+        .summary-card-icon {
+            font-size: 1.75rem;
+            opacity: 0.8;
+        }
+
+        .answer-item {
+            margin-bottom: 1rem;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            background-color: #f8f9fa;
+            border-left: 4px solid;
+        }
+
+        .answer-item.correct {
+            border-left-color: var(--success-color);
+            background-color: rgba(28, 200, 138, 0.05);
+        }
+
+        .answer-item.incorrect {
+            border-left-color: var(--danger-color);
+            background-color: rgba(231, 74, 59, 0.05);
+        }
+
+        .recommendation-card {
+            border-left: 0.25rem solid var(--warning-color) !important;
+        }
+
+        .recommendation-icon {
+            font-size: 2rem;
+            opacity: 0.2;
+        }
+
+        .feedback-card {
+            border-left: 0.25rem solid var(--info-color) !important;
+        }
+
+        .strength-item {
+            background-color: rgba(28, 200, 138, 0.1);
+            border-left: 4px solid var(--success-color);
+        }
+
+        .improvement-item {
+            background-color: rgba(231, 74, 59, 0.1);
+            border-left: 4px solid var(--danger-color);
+        }
+
+        @media (max-width: 768px) {
+            .chart-container {
+                height: 300px;
+            }
+            
+            .summary-card .card-body {
+                padding: 1rem;
+            }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        .btn-clear {
+            background-color: var(--danger-color);
+            color: #fff;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .btn-clear:hover {
+            background-color: #c82333;
+            transform: scale(1.05);
+        }
+        
+        .last-attempt-date {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--dark-color);
+        }
+        
+        .feedback-icon {
+            font-size: 1.5rem;
+            margin-right: 10px;
+        }
+
+        /* Added for equal height feedback cards */
+        .equal-height-col {
+            display: flex;
+        }
+        
+        .equal-height-card {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .equal-height-card .card-body {
+            flex: 1;
+        }
+        /* Add to your CSS file */
+.attempt-date {
+    font-weight: bold;
+}
+.attempt-time {
+    font-size: 0.8em;
+    margin-top: -3px;
+}
+    </style>
+</head>
+<body>
+    <div class="container-fluid py-4">
+        <div class="d-sm-flex align-items-center justify-content-between mb-4">
+            <h1 class="h3 mb-0 text-gray-800" style="color: #181717; font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif; ">{{ name }}'s Progress Dashboard</h1>
+            <div class="d-flex gap-2">
+                {% if user_type == 'teacher' %}
+                <a href="{{ url_for('progress') }}" class="btn btn-primary">
+                    <i class="fas fa-arrow-left fa-sm text-white-50"></i> Back to Student Selection
+                </a>
+                {% endif %}
+                {% if user_type == 'student' %}
+                <form action="{{ url_for('clear_progress') }}" method="POST" onsubmit="return confirm('Are you sure you want to clear all your progress?');">
+                    <button type="submit" class="btn btn-clear">
+                        <i class="fas fa-trash-alt"></i> Clear Progress
+                    </button>
+                </form>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Summary Cards -->
+        <div class="row mb-4">
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card h-100 progress-card summary-card">
+                    <div class="card-body">
+                        <div class="row align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                                    Average Score</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ avg_score }}%</div>
+                                <div class="mt-2 text-xs text-muted">
+                                    <i class="fas fa-info-circle"></i> Across all quizzes
+                                </div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-chart-line summary-card-icon text-primary"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card h-100 questions-card summary-card">
+                    <div class="card-body">
+                        <div class="row align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
+                                    Questions Attempted</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ question_attempts }}</div>
+                                <div class="mt-2 text-xs text-muted">
+                                    <i class="fas fa-info-circle"></i> Total questions answered
+                                </div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-question-circle summary-card-icon text-info"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card h-100 time-card summary-card">
+                    <div class="card-body">
+                        <div class="row align-items-start">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-primary text-uppercase mb-2">
+                                    TOPIC COVERED
+                                </div>
+
+                                <!-- Scrollable and truncated topic list with no duplicates -->
+                                <div style="max-height: 100px; overflow-y: auto;" class="text-gray-800 small">
+                                    {% set seen_topics = [] %}
+                                    {% for quiz in progress %}
+                                        {% if quiz.topic not in seen_topics %}
+                                            {% set _ = seen_topics.append(quiz.topic) %}
+                                            <div class="mb-1" style="overflow: hidden; text-overflow: ellipsis; white-space: nowrap;" title="{{ quiz.topic }}">
+                                                • {{ quiz.topic }}
+                                            </div>
+                                        {% endif %}
+                                    {% else %}
+                                        {% if seen_topics|length == 0 %}
+                                            <div class="text-muted">No topics yet</div>
+                                        {% endif %}
+                                    {% endfor %}
+                                </div>
+
+                                <div class="mt-2 text-xs text-muted">
+                                    <i class="fas fa-info-circle"></i> Topics from your quizzes
+                                </div>
+                            </div>
+                            <div class="col-auto">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-xl-3 col-md-6 mb-4">
+                <div class="card h-100 score-card summary-card">
+                    <div class="card-body">
+                        <div class="row align-items-center">
+                            <div class="col mr-2">
+                                <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                                    Quizzes Completed</div>
+                                <div class="h5 mb-0 font-weight-bold text-gray-800">{{ progress|length }}</div>
+                                <div class="mt-2 text-xs text-muted">
+                                    <i class="fas fa-info-circle"></i> Across all topics
+                                </div>
+                            </div>
+                            <div class="col-auto">
+                                <i class="fas fa-clipboard-list summary-card-icon text-warning"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Progress Charts -->
+        <div class="row mb-4">
+            <div class="col-lg-6 mb-4">
+                <div class="card shadow h-100">
+                    <div class="card-header py-3 d-flex justify-content-between align-items-center bg-white">
+                        <div>
+                            <h6 class="m-0 font-weight-bold text-primary">Score Progress Over Time</h6>
+                            <small class="text-muted">Last {{ progress|length }} attempts</small>
+                        </div>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="chart-container">
+                            <canvas id="scoreChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="card-footer bg-transparent border-top-0 py-2">
+                        <small class="text-muted"><i class="fas fa-info-circle me-1"></i> Track your improvement across all quizzes</small>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-6 mb-4">
+                <div class="card shadow h-100">
+                    <div class="card-header py-3 d-flex justify-content-between align-items-center bg-white">
+                        <div>
+                            <h6 class="m-0 font-weight-bold text-primary">Performance by Topic</h6>
+                            <small class="text-muted">{{ topics_progress|length }} topics</small>
+                        </div>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="chart-container">
+                            <canvas id="topicChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="card-footer bg-transparent border-top-0 py-2">
+                        <small class="text-muted"><i class="fas fa-info-circle me-1"></i> Compare your performance across different topics</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Updated Feedback Section -->
+        <div class="row mb-4">
+            <!-- Performance Analysis -->
+            <div class="col-md-6 mb-4 equal-height-col">
+                <div class="card shadow h-100 feedback-card fade-in equal-height-card">
+                    <div class="card-body p-3">
+                        <h5 class="card-title mb-2">
+                            <i class="fas fa-chart-line feedback-icon text-info me-2"></i>
+                            Performance Analysis
+                        </h5>
+
+                        <!-- Strengths -->
+                        <div class="mb-2">
+                            <h6 class="text-success">
+                                <i class="fas fa-check-circle me-2"></i>Strengths
+                            </h6>
+                            <div class="mt-1">
+                                {% if feedbacks[4].strengths %}
+                                    {% for strength in feedbacks[4].strengths %}
+                                        <div class="strength-item p-2 px-3 mb-1 rounded text-truncate" title="{{ strength }}">
+                                            <i class="fas fa-thumbs-up me-2 text-success"></i>{{ strength }}
+                                        </div>
+                                    {% endfor %}
+                                {% else %}
+                                    <div class="text-muted">No strengths identified yet</div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- Areas for Improvement -->
+                        <div>
+                            <h6 class="text-danger">
+                                <i class="fas fa-exclamation-circle me-2"></i>Areas for Improvement
+                            </h6>
+                            <div class="mt-1">
+                                {% if feedbacks[4].improvements %}
+                                    {% for improvement in feedbacks[4].improvements %}
+                                        <div class="improvement-item p-2 px-3 mb-1 rounded text-truncate" title="{{ improvement }}">
+                                            <i class="fas fa-lightbulb me-2 text-warning"></i>{{ improvement }}
+                                        </div>
+                                    {% endfor %}
+                                {% else %}
+                                    <div class="text-muted">No improvement areas identified yet</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recommendations -->
+            <div class="col-md-6 mb-4 equal-height-col">
+                <div class="card shadow h-100 recommendation-card fade-in equal-height-card">
+                    <div class="card-body p-3 d-flex flex-column">
+                        <div>
+                            <h5 class="card-title mb-2">
+                                <i class="fas fa-lightbulb feedback-icon text-warning me-2"></i>
+                                Recommendations
+                            </h5>
+
+                            <!-- Main Recommendation -->
+                            <div class="alert alert-warning py-2 px-3 mb-2" style="font-size: 0.9rem;">
+                                <i class="fas fa-star me-2"></i>
+                                <strong>
+                                    {% if progress|length > 0 %}
+                                        {% set recent_score = (progress[0].quiz_score / progress[0].max_score * 100) if progress[0].max_score > 0 else 0 %}
+                                        {% if recent_score >= 80 %}
+                                            Excellent work! Challenge yourself with advanced topics.
+                                        {% elif recent_score >= 60 %}
+                                            Good performance! Focus on weak areas to improve further.
+                                        {% else %}
+                                            Review basic concepts and practice more questions.
+                                        {% endif %}
+                                    {% else %}
+                                        Take a quiz to get personalized recommendations.
+                                    {% endif %}
+                                </strong>
+                            </div>
+
+                            <!-- Recent Performance -->
+                            <div class="mb-2">
+                                {% if progress|length > 0 %}
+                                <div class="d-flex align-items-center mb-1">
+                                    <i class="fas fa-chart-line text-primary me-2"></i>
+                                    <div>
+                                        <strong>Recent Score:</strong>
+                                        {% set recent_percentage = (progress[0].quiz_score / progress[0].max_score * 100) if progress[0].max_score > 0 else 0 %}
+                                        <span class="badge bg-{% if recent_percentage >= 70 %}success{% elif recent_percentage >= 50 %}primary{% else %}danger{% endif %} ms-1">
+                                            {{ "%.1f"|format(recent_percentage) }}%
+                                        </span>
+                                        <span class="text-muted ms-2">({{ progress[0].timestamp.split(' ')[0] if progress[0].timestamp else "Recent attempt" }})</span>
+                                    </div>
+                                </div>
+                                {% endif %}
+
+                                <!-- Improvement -->
+                                {% if progress|length > 1 %}
+                                <div class="d-flex align-items-center">
+                                    <i class="fas fa-arrow-{% if (progress[0].quiz_score/progress[0].max_score) < (progress[1].quiz_score/progress[1].max_score) %}down text-danger{% else %}up text-success{% endif %} me-2"></i>
+                                    <div>
+                                        <strong>Improvement:</strong>
+                                        {% set current = (progress[0].quiz_score / progress[0].max_score * 100) if progress[0].max_score > 0 else 0 %}
+                                        {% set previous = (progress[1].quiz_score / progress[1].max_score * 100) if progress[1].max_score > 0 else 0 %}
+                                        {% set change = current - previous %}
+                                        <span class="badge bg-{% if change > 0 %}success{% elif change < 0 %}danger{% else %}secondary{% endif %} ms-1">
+                                            {{ "%+.1f"|format(change) }}%
+                                        </span>
+                                        <span class="text-muted ms-2">(vs previous attempt)</span>
+                                    </div>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <!-- CTA Button -->
+                        <div class="mt-auto pt-2">
+                            <a href="{{ url_for('quiz_home') }}" class="btn btn-warning w-100">
+                                <i class="fas fa-rocket me-1"></i> Take New Quiz
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        <!-- Detailed Progress by Topic -->
+        {% for topic, records in topics_progress.items() %}
+        <div class="card shadow mb-4 topic-progress">
+            <div class="card-header py-3 d-flex flex-column flex-md-row justify-content-between align-items-center topic-header">
+                <h6 class="m-0 font-weight-bold">Performance Details - {{ records[0].short_topic }}</h6>
+                <div class="mt-2 mt-md-0">
+                    <span class="badge bg-primary me-2">
+                        {{ records|length }} attempt{{ 's' if records|length > 1 else '' }}
+                    </span>
+                    <span class="badge bg-{% if (records|map(attribute='quiz_score')|sum / records|map(attribute='max_score')|sum * 100) >= 70 %}success{% else %}warning{% endif %}">
+                        Avg: {{ "%.1f"|format(records|map(attribute='quiz_score')|sum / records|map(attribute='max_score')|sum * 100) }}%
+                    </span>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-bordered progress-table" width="100%" cellspacing="0">
+                        <thead>
+                            <tr>
+                                <th>Date</th>
+                                <th>Score</th>
+                                <th>Questions</th>
+                                <th>Percentage</th>
+                                <th>Details</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for record in records %}
+                            <tr>
+                                <td>
+                                    {% if record.timestamp %}
+                                        <div class="attempt-date small text-muted">{{ record.timestamp.split(' ')[0] }}</div>
+                                        <div class="attempt-time small text-muted">{{ record.timestamp.split(' ')[1] }}</div>
+                                    {% else %}
+                                        <span class="text-muted">Not recorded</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ record.quiz_score }} / {{ record.max_score }}</td>
+                                <td>{{ record.num_questions }}</td>
+                                <td>
+                                    {% set percentage = (record.quiz_score / record.max_score * 100) if record.max_score > 0 else 0 %}
+                                    <div class="d-flex align-items-center">
+                                        <div class="progress flex-grow-1 me-2" style="height: 20px;">
+                                            <div class="progress-bar 
+                                                {% if percentage >= 80 %}bg-success
+                                                {% elif percentage >= 50 %}bg-info
+                                                {% else %}bg-danger
+                                                {% endif %}" 
+                                                role="progressbar" 
+                                                style="width: {{ percentage }}%" 
+                                                aria-valuenow="{{ percentage }}" 
+                                                aria-valuemin="0" 
+                                                aria-valuemax="100">
+                                            </div>
+                                        </div>
+                                        <span class="text-nowrap">{{ "%.1f"|format(percentage) }}%</span>
+                                    </div>
+                                </td>
+                                <td>
+                                    {% if record.question_details %}
+                                    <button class="btn btn-sm btn-outline-primary view-answers" 
+                                            data-answers='{{ record.answers }}'
+                                            data-questions='{{ record.question_details }}'
+                                            data-timestamp="{% if record.timestamp %}{{ record.timestamp }}{% else %}Not recorded{% endif %}"
+                                            data-topic="{{ record.topic }}"
+                                            data-short-topic="{{ record.short_topic }}">
+                                        <i class="fas fa-eye me-1"></i> View
+                                    </button>
+                                    {% else %}
+                                    <span class="text-muted">No details</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Answers Modal -->
+    <div class="modal fade" id="answersModal" tabindex="-1" aria-labelledby="answersModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white">
+                    <h5 class="modal-title" id="answersModalLabel">Quiz Answers</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="answersContent">
+                    <!-- Answers will be inserted here -->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Get the most recent quiz date
+        const lastAttemptDate = document.querySelector('.last-attempt-date');
+        if (lastAttemptDate) {
+            // This would normally come from your backend
+            const now = new Date();
+            const formattedDate = now.toISOString().split('T')[0];
+            
+            // Only update if it's different from the current display
+            if (lastAttemptDate.textContent.trim() !== formattedDate && lastAttemptDate.textContent.trim() !== 'N/A') {
+                lastAttemptDate.textContent = formattedDate;
+            }
+        }
+
+        // Initialize charts
+        let scoreChart, topicChart;
+        let allProgressData = [
+            {% for record in progress %}
+                {
+                    date: "{% if record.timestamp %}{{ record.timestamp.split(' ')[0] }}{% else %}Quiz {{ loop.index }}{% endif %}",
+                    score: {% if record.max_score and record.max_score > 0 and record.quiz_score is not none %}{{ (record.quiz_score / record.max_score * 100) }}{% else %}0{% endif %},
+                    topic: "{{ record.short_topic }}"
+                },
+            {% endfor %}
+        ];
+
+        function initializeCharts() {
+            // Score Progress Chart
+            const scoreCtx = document.getElementById('scoreChart').getContext('2d');
+            scoreChart = new Chart(scoreCtx, {
+                type: 'line',
+                data: {
+                    labels: allProgressData.map(item => item.date),
+                    datasets: [{
+                        label: 'Quiz Scores (%)',
+                        data: allProgressData.map(item => item.score),
+                        backgroundColor: 'rgba(78, 115, 223, 0.1)',
+                        borderColor: 'rgba(78, 115, 223, 0.7)',
+                        pointBackgroundColor: 'rgba(78, 115, 223, 1)',
+                        pointBorderColor: '#fff',
+                        pointHoverBackgroundColor: '#fff',
+                        pointHoverBorderColor: 'rgba(78, 115, 223, 1)',
+                        pointRadius: 5,
+                        pointHoverRadius: 7,
+                        borderWidth: 2,
+                        tension: 0.3,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `Score: ${context.raw.toFixed(1)}%`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100,
+                            ticks: { 
+                                callback: function(value) {
+                                    return value + '%';
+                                }
+                            },
+                            grid: { 
+                                color: 'rgba(0, 0, 0, 0.05)' 
+                            }
+                        },
+                        x: { 
+                            grid: { 
+                                display: false 
+                            } 
+                        }
+                    }
+                }
+            });
+
+            // Topic Performance Chart with different colors for each topic
+            const topicCtx = document.getElementById('topicChart').getContext('2d');
+            topicChart = new Chart(topicCtx, {
+                type: 'bar',
+                data: {
+                    labels: allProgressData.map(item => item.topic),
+                    datasets: [{
+                        label: 'Quiz Score (%)',
+                        data: allProgressData.map(item => item.score),
+                        backgroundColor: [
+                            'rgba(255, 99, 132, 0.7)',    // Red
+                            'rgba(54, 162, 235, 0.7)',     // Blue
+                            'rgba(255, 206, 86, 0.7)',     // Yellow
+                            'rgba(75, 192, 192, 0.7)',     // Teal
+                            'rgba(153, 102, 255, 0.7)',    // Purple
+                            'rgba(255, 159, 64, 0.7)',     // Orange
+                            'rgba(199, 199, 199, 0.7)',    // Gray
+                            'rgba(83, 102, 255, 0.7)',     // Indigo
+                            'rgba(40, 167, 69, 0.7)',      // Green
+                            'rgba(108, 117, 125, 0.7)'     // Dark gray
+                        ],
+                        borderColor: [
+                            'rgba(255, 99, 132, 1)',
+                            'rgba(54, 162, 235, 1)',
+                            'rgba(255, 206, 86, 1)',
+                            'rgba(75, 192, 192, 1)',
+                            'rgba(153, 102, 255, 1)',
+                            'rgba(255, 159, 64, 1)',
+                            'rgba(199, 199, 199, 1)',
+                            'rgba(83, 102, 255, 1)',
+                            'rgba(40, 167, 69, 1)',
+                            'rgba(108, 117, 125, 1)'
+                        ],
+                        borderWidth: 1,
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `Score: ${context.raw}%`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100,
+                            ticks: { 
+                                callback: function(value) {
+                                    return value + '%';
+                                }
+                            },
+                            grid: { 
+                                color: 'rgba(0, 0, 0, 0.05)' 
+                            }
+                        },
+                        x: {
+                            grid: { 
+                                display: false 
+                            },
+                            ticks: { 
+                                autoSkip: false,
+                                maxRotation: 25,
+                                minRotation: 25
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        initializeCharts();
+
+        // View Answers Modal
+        document.querySelectorAll('.view-answers').forEach(button => {
+            button.addEventListener('click', function() {
+                try {
+                    const answers = JSON.parse(this.getAttribute('data-answers'));
+                    const questions = JSON.parse(this.getAttribute('data-questions'));
+                    const timestamp = this.getAttribute('data-timestamp');
+                    const topic = this.getAttribute('data-topic');
+                    const shortTopic = this.getAttribute('data-short-topic');
+                    
+                    let content = `
+                        <div class="mb-4">
+                            <h4>${shortTopic} Quiz</h4>
+                            <p class="text-muted mb-0">${timestamp}</p>
+                        </div>
+                        <div class="answers-container">
+                    `;
+                    
+                    if (questions && questions.length > 0) {
+                        questions.forEach((item, index) => {
+                            const isCorrect = item.is_correct || false;
+                            content += `
+                                <div class="answer-item mb-3 ${isCorrect ? 'correct' : 'incorrect'}">
+                                    <h6 class="mb-2">Question ${index + 1}: ${item.question || 'No question text'}</h6>
+                                    <div class="d-flex align-items-center mb-2">
+                                        <strong class="me-2">Your answer:</strong>
+                                        <span>${item.user_display || 'No answer'}</span>
+                                        <i class="fas ${isCorrect ? 'fa-check-circle text-success ms-2' : 'fa-times-circle text-danger ms-2'}"></i>
+                                    </div>
+                                    ${!isCorrect ? `
+                                    <div class="mb-2">
+                                        <strong class="me-2">Correct answer:</strong>
+                                        <span>${item.correct_display || 'Not available'}</span>
+                                    </div>
+                                    ` : ''}
+                                    <div class="text-muted small">
+                                        <strong>Options:</strong> ${item.options ? item.options.join(', ') : 'Not available'}
+                                    </div>
+                                </div>
+                            `;
+                        });
+                    } else if (answers && answers.length > 0) {
+                        answers.forEach((answer, index) => {
+                            const isCorrect = answer.correct || false;
+                            content += `
+                                <div class="answer-item mb-3 ${isCorrect ? 'correct' : 'incorrect'}">
+                                    <h6 class="mb-2">Question ${index + 1}</h6>
+                                    <div class="d-flex align-items-center mb-2">
+                                        <strong class="me-2">Your answer:</strong>
+                                        <span>${answer.user_answer || 'No answer'}</span>
+                                        <i class="fas ${isCorrect ? 'fa-check-circle text-success ms-2' : 'fa-times-circle text-danger ms-2'}"></i>
+                                    </div>
+                                    ${!isCorrect ? `
+                                    <div>
+                                        <strong class="me-2">Correct answer:</strong>
+                                        <span>${answer.correct_answer || 'Not available'}</span>
+                                    </div>
+                                    ` : ''}
+                                </div>
+                            `;
+                        });
+                    } else {
+                        content += '<div class="alert alert-info">No answer details available for this quiz.</div>';
+                    }
+                    
+                    content += '</div>';
+                    document.getElementById('answersContent').innerHTML = content;
+                    
+                    // Show modal
+                    const modal = new bootstrap.Modal(document.getElementById('answersModal'));
+                    modal.show();
+                } catch (error) {
+                    console.error('Error:', error);
+                    document.getElementById('answersContent').innerHTML = 
+                        '<div class="alert alert-danger">Error loading answer details. Please try again.</div>';
+                    const modal = new bootstrap.Modal(document.getElementById('answersModal'));
+                    modal.show();
+                }
+            });
+        });
+
+        // Animate progress bars on page load
+        const progressBars = document.querySelectorAll('.progress-bar');
+        progressBars.forEach(bar => {
+            const width = bar.style.width;
+            bar.style.width = '0';
+            setTimeout(() => {
+                bar.style.width = width;
+            }, 100);
+        });
+    });
+
+    </script>
+</body>
+</html>

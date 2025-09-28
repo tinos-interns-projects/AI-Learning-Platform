@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>TinoBot AI</title>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700&display=swap" rel="stylesheet"/>
+  <link href="https://fonts.googleapis.com/css2?family=Indie+Flower&display=swap" rel="stylesheet"/>
+
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html, body {
+      height: 100%;
+      font-family: 'Poppins', sans-serif;
+      overflow: hidden;
+      background-color: #4b1fa4;
+      color: white;
+    }
+
+    @keyframes slideDown {
+      0% { transform: translateY(-100px); opacity: 0; }
+      100% { transform: translateY(0); opacity: 1; }
+    }
+
+    @keyframes fadeUp {
+      0% { transform: translateY(30px); opacity: 0; }
+      100% { transform: translateY(0); opacity: 1; }
+    }
+
+    @keyframes floatIn {
+      0% { transform: scale(0); opacity: 0; }
+      100% { transform: scale(1); opacity: 1; }
+    }
+
+    @keyframes floatLoop {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-15px); }
+    }
+
+    @keyframes bouncePulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.08); }
+    }
+
+    .header {
+      background: white;
+      text-align: center;
+      padding: 30px 20px 0;
+      animation: slideDown 0.6s ease forwards;
+    }
+
+    .logo {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 10px;
+      font-size: 2rem;
+      font-weight: 700;
+      color: #000;
+    }
+
+    .logo span {
+      color: #7e39f3;
+      font-size: 1rem;
+      font-weight: 600;
+    }
+
+    .logo img {
+      height: 40px;
+    }
+
+    .nav {
+      display: flex;
+      justify-content: center;
+      gap: 40px;
+      padding: 15px;
+      background: white;
+      color: #555;
+      font-weight: 500;
+      animation: slideDown 0.6s ease forwards;
+      animation-delay: 0.3s; /* Added delay to appear after header */
+      opacity: 0; /* Start hidden */
+    }
+
+    .curve svg {
+      width: 100%;
+      height: 100px;
+      display: block;
+      animation: fadeUp 1s ease 0.5s forwards;
+    }
+
+    .hero {
+      position: relative;
+      text-align: center;
+      padding: 60px 20px 40px;
+      background-color: #4b1fa4;
+      height: calc(100vh - 180px);
+      overflow: hidden;
+    }
+
+    .hero h1,
+    .hero p,
+    .cta-container,
+    .highlight {
+      opacity: 0;
+      animation: fadeUp 1s ease forwards;
+    }
+
+    .hero h1 {
+      font-size: 3rem;
+      font-weight: 700;
+      margin-bottom: 20px;
+      animation-delay: 0.4s;
+    }
+
+    .hero p {
+      font-size: 1.15rem;
+      max-width: 700px;
+      margin: 10px auto;
+      font-weight: 400;
+    }
+
+    .hero p:nth-of-type(1) { animation-delay: 0.6s; }
+    .hero p.bold { animation-delay: 0.8s; }
+
+    .cta-container {
+      animation-delay: 1s;
+      display: flex;
+      justify-content: center;
+      margin-top: 25px;
+    }
+
+    .cta-btn {
+      background: white;
+      color: #4b1fa4;
+      padding: 14px 35px;
+      font-size: 1rem;
+      font-weight: 600;
+      border-radius: 30px;
+      text-decoration: none;
+      display: inline-block;
+      box-shadow: 0 3px 10px rgba(0,0,0,0.2);
+      animation: bouncePulse 2s ease-in-out infinite 1s;
+      transition: 0.3s;
+    }
+
+    .cta-btn:hover {
+      transform: scale(1.1);
+      background-color: #ddc8ff;
+    }
+
+    .highlight {
+      margin-top: 60px;
+      font-size: 2rem;
+      font-weight: 700;
+      color: #d6b9ff;
+      line-height: 1.5;
+      animation-delay: 1.2s;
+    }
+
+    .circle {
+      position: absolute;
+      border: 1px solid rgba(255,255,255,0.3);
+      border-radius: 50%;
+      color: #d5aaff;
+      font-family: 'Indie Flower', cursive;
+      font-size: 1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      opacity: 0;
+      animation:
+        floatIn 0.8s ease forwards,
+        floatLoop 5s ease-in-out infinite;
+    }
+
+    .circle.large { width: 200px; height: 200px; font-size: 1.1rem; }
+    .circle.medium { width: 120px; height: 120px; font-size: 0.9rem; }
+    .circle.small { width: 80px; height: 80px; font-size: 0.8rem; }
+
+    .circle1 { top: 60px; left: 40px; animation-delay: 0.6s, 1.4s; }
+    .circle2 { bottom: 100px; left: 100px; animation-delay: 0.8s, 1.6s; }
+    .circle3 { top: 60px; right: 80px; animation-delay: 1s, 1.8s; }
+    .circle4 { bottom: 60px; right: 100px; animation-delay: 1.2s, 2s; }
+
+    @media (max-width: 768px) {
+      .nav { flex-direction: column; gap: 10px; }
+      .hero h1 { font-size: 2.2rem; }
+      .highlight { font-size: 1.5rem; padding: 0 20px; }
+      .circle { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <div class="header">
+    <div class="logo">
+      <img src="https://img.icons8.com/color/48/artificial-intelligence.png" alt="AI logo">
+      TinoBot <span>AI</span>
+    </div>
+  </div>
+
+<!-- Navigation -->
+<div class="nav">
+  <div>Research Finder</div>
+  <div>Summarizer</div>
+  <div>Quiz Generator</div>
+  <div>Progress Tracker</div>
+  <div><a href="{{ url_for('admin_login') }}" style="color: #7e39f3; text-decoration: none;">Admin</a></div>
+</div>
+
+  <!-- Curve Divider -->
+  <div class="curve">
+    <svg viewBox="0 0 1440 320" preserveAspectRatio="none">
+      <path fill="#4b1fa4" d="M0,160 C480,0 960,320 1440,160 L1440,0 L0,0 Z"></path>
+    </svg>
+  </div>
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="circle large circle1">Researching</div>
+    <div class="circle medium circle2">Learning</div>
+    <div class="circle small circle3">Writing</div>
+    <div class="circle large circle4">Studying</div>
+
+    <h1>Learn 10x Faster</h1>
+    <p>Have your lectures or readings transformed into perfect study tools – AI powered notes, flashcards, quizzes, and a personal tutor that's ready when you are.</p>
+    <p class="bold">Just upload and go!</p>
+
+    <div class="cta-container">
+      <a href="{{ url_for('login') }}" class="cta-btn">Try it FREE</a>
+    </div>
+
+    <div class="highlight">
+      Faster for Studying,<br>
+      Homework Help, and Exam Prep
+    </div>
+  </section>
+
+</body>
+</html>

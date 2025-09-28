@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Login</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #e2e8f0, #bfdbfe);
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0;
+        }
+        .login-container {
+            background: rgba(255, 255, 255, 0.97);
+            border-radius: 16px;
+            box-shadow: 0 6px 24px rgba(0, 0, 0, 0.15);
+            padding: 2.5rem;
+            width: 100%;
+            max-width: 32rem;
+        }
+        h1 {
+            color: #1e3a8a;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 1.5rem;
+        }
+        input {
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 0.75rem;
+            width: 100%;
+            transition: all 0.3s ease;
+            box-sizing: border-box;
+        }
+        input:focus {
+            border-color: #1e40af;
+            box-shadow: 0 0 0 4px rgba(30, 64, 175, 0.2);
+            outline: none;
+        }
+        button {
+            background: #2563eb;
+            color: white;
+            padding: 0.75rem;
+            border-radius: 8px;
+            width: 100%;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        button:hover {
+            background: #1e40af;
+            transform: translateY(-2px);
+        }
+        .flash-message {
+            padding: 1rem;
+            border-radius: 8px;
+            border-left: 4px solid;
+            margin-bottom: 1.5rem;
+            animation: fadeIn 0.5s ease-in;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .admin-id-field {
+            position: relative;
+        }
+        .admin-id-field::after {
+            content: 'Optional for existing admins';
+            position: absolute;
+            right: 0;
+            top: 0;
+            font-size: 0.75rem;
+            color: #6b7280;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <h1 class="text-2xl">Admin Login</h1>
+        
+
+        
+        <form method="POST" action="{{ url_for('admin_login') }}">
+            <div class="admin-id-field mb-4">
+                <label for="admin_id" class="block text-sm font-medium text-gray-700">Admin ID</label>
+                <input type="text" name="admin_id" id="admin_id" class="mt-1" placeholder="">
+            </div>
+            
+            <div class="mb-4">
+                <label for="name" class="block text-sm font-medium text-gray-700">Full Name</label>
+                <input type="text" name="name" id="name" class="mt-1" placeholder="">
+            </div>
+            
+            <div class="mb-4">
+                <label for="email" class="block text-sm font-medium text-gray-700">Email</label>
+                <input type="email" name="email" id="email" class="mt-1" required placeholder="">
+            </div>
+            
+            <div class="mb-6">
+                <label for="password" class="block text-sm font-medium text-gray-700">Password</label>
+                <input type="password" name="password" id="password" class="mt-1" required placeholder="">
+            </div>
+            
+            <button type="submit">Login</button>
+        </form>
+    </div>
+</body>
+</html>

@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Dashboard - TinoBot AI Chatbot</title>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+:root {
+  --primary: #4361ee;
+  --primary-light: #e0e7ff;
+  --primary-dark: #3a56d5;
+  --secondary: #4542ae;
+  --text: #1e293b;
+  --text-light: #64748b;
+  --bg: #f8fafc;
+  --card: #ffffff;
+  --border: #e2e8f0;
+  --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --radius: 12px;
+  --radius-sm: 8px;
+  --transition: all 0.2s ease-in-out;
+}
+
+[data-theme="dark"] {
+  --primary: #4895ef;
+  --primary-light: #1a1b41;
+  --primary-dark: #3f7fd4;
+  --secondary: #b5179e;
+  --text: #f8f9fa;
+  --text-light: #adb5bd;
+  --bg: #1a1b41;
+  --card: #2b2d42;
+  --border: #3a3d5d;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html, body {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background-color: var(--bg);
+  color: var(--text);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+/* Fixed-size chat container */
+.chat-container {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  border: 1px solid var(--border);
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+#chat-messages {
+  flex: 1;
+  padding: 1.5rem;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+  background-color: var(--bg);
+  height: calc(100% - 72px); /* Adjust based on input area height */
+  transition: background-color 0.3s ease;
+}
+
+header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.header-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+header h1 {
+  font-weight: 600;
+  font-size: 1.5rem;
+  color: var(--primary);
+  margin: 0;
+  transition: color 0.3s ease;
+}
+
+.user-info {
+  font-size: 0.875rem;
+  color: var(--text-light);
+  font-weight: 500;
+  transition: color 0.3s ease;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-sm);
+  font-weight: 500;
+  cursor: pointer;
+  transition: var(--transition);
+  text-decoration: none;
+  border: none;
+  font-size: 0.875rem;
+}
+
+.btn-primary {
+  background-color: var(--primary);
+  color: white;
+}
+
+.btn-primary:hover {
+  background-color: var(--primary-dark);
+  transform: translateY(-1px);
+}
+
+.btn-outline {
+  background-color: transparent;
+  color: var(--primary);
+  border: 1.5px solid var(--primary);
+}
+
+.btn-outline:hover {
+  background-color: var(--primary-light);
+  transform: translateY(-1px);
+}
+
+.btn-icon {
+  width: 2.5rem;
+  height: 2.5rem;
+  padding: 0;
+  border-radius: 50%;
+  background-color: var(--primary-light);
+  color: var(--primary);
+}
+
+.btn-icon:hover {
+  background-color: var(--primary);
+  color: white;
+  transform: scale(1.05);
+}
+
+/* Menu styles */
+.menu-container {
+  position: relative;
+}
+
+.dropdown-menu {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 0.5rem);
+  background-color: var(--card);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-lg);
+  width: 240px;
+  z-index: 100;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-10px);
+  transition: var(--transition);
+  border: 1px solid var(--border);
+  padding: 0.5rem 0;
+}
+
+.dropdown-menu.show {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+.dropdown-menu button {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  text-align: left;
+  background: none;
+  border: none;
+  color: var(--text);
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: var(--transition);
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.dropdown-menu button:hover {
+  background-color: var(--primary-light);
+  color: var(--primary);
+}
+
+.dropdown-menu button i {
+  width: 1.25rem;
+  text-align: center;
+}
+
+.message {
+  padding: 0.875rem 1.25rem;
+  border-radius: 1.25rem;
+  max-width: 80%;
+  font-size: 0.9375rem;
+  line-height: 1.5;
+  word-wrap: break-word;
+  box-shadow: var(--shadow);
+  position: relative;
+  animation: fadeIn 0.3s ease-out;
+  transition: var(--transition);
+}
+
+.message.user {
+  background-color: var(--primary);
+  color: white;
+  align-self: flex-end;
+  border-bottom-right-radius: 0.5rem;
+}
+
+.message.assistant {
+  background-color: var(--card);
+  color: var(--text);
+  align-self: flex-start;
+  border-bottom-left-radius: 0.5rem;
+  border: 1px solid var(--border);
+  position: relative;
+  padding-bottom: 2.5rem; /* Space for buttons */
+}
+
+.message.assistant .action-buttons {
+  position: absolute;
+  bottom: 0.5rem;
+  right: 0.5rem;
+  display: flex;
+  gap: 0.5rem;
+  opacity: 0;
+  transition: opacity 0.2s ease-in-out;
+}
+
+.message.assistant:hover .action-buttons {
+  opacity: 1;
+}
+
+.message.assistant .feedback {
+  position: absolute;
+  bottom: -1.5rem;
+  right: 0.5rem;
+  font-size: 0.75rem;
+  color: var(--text-light);
+  opacity: 0;
+  transition: opacity 0.2s ease-in-out;
+}
+
+.message.assistant:hover .feedback {
+  opacity: 1;
+}
+
+.message.assistant a {
+  color: var(--primary);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.message.assistant a:hover {
+  text-decoration: underline;
+}
+
+.message.typing {
+  opacity: 0.8;
+}
+
+.message.typing::after {
+  content: '...';
+  display: inline-block;
+  animation: typingDots 1.5s infinite;
+}
+
+@keyframes typingDots {
+  0%, 20% { content: '.'; }
+  40% { content: '..'; }
+  60%, 100% { content: '...'; }
+}
+
+/* Input area */
+.input-area {
+  display: flex;
+  gap: 0.75rem;
+  padding: 1rem 1.5rem;
+  background-color: var(--card);
+  border-top: 1px solid var(--border);
+  transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+#message-input {
+  flex: 1;
+  padding: 0.875rem 1.25rem;
+  font-size: 0.9375rem;
+  border: 1.5px solid var(--border);
+  border-radius: 2rem;
+  outline: none;
+  transition: var(--transition);
+  background-color: var(--bg);
+  color: var(--text);
+}
+
+#message-input:focus {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.2);
+}
+
+#send-btn {
+  background-color: var(--primary);
+  border: none;
+  color: white;
+  padding: 0 1.75rem;
+  font-size: 0.9375rem;
+  border-radius: 2rem;
+  cursor: pointer;
+  font-weight: 500;
+  transition: var(--transition);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+#send-btn:hover {
+  background-color: var(--primary-dark);
+  transform: translateY(-1px);
+}
+
+#send-btn i {
+  font-size: 1.1rem;
+}
+
+#voice-btn {
+  background-color: var(--primary);
+  border: none;
+  color: white;
+  width: 3rem;
+  height: 3rem;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: var(--transition);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#voice-btn:hover {
+  background-color: var(--primary-dark);
+  transform: scale(1.05);
+}
+
+/* Scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bg);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--text-light);
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  body {
+    padding: 1rem 0.75rem;
+  }
+
+  header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .header-actions {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .message {
+    max-width: 90%;
+  }
+
+  .input-area {
+    padding: 0.75rem;
+  }
+
+  #send-btn {
+    padding: 0 1.25rem;
+  }
+  
+  /* Adjust fixed height for mobile */
+  .chat-container {
+    height: 500px;
+  }
+}
+
+/* Loading animation */
+.loading-dots {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.loading-dots span {
+  width: 0.5rem;
+  height: 0.5rem;
+  background-color: var(--text-light);
+  border-radius: 50%;
+  display: inline-block;
+  animation: bounce 1.4s infinite ease-in-out both;
+}
+
+.loading-dots span:nth-child(1) {
+  animation-delay: -0.32s;
+}
+
+.loading-dots span:nth-child(2) {
+  animation-delay: -0.16s;
+}
+
+@keyframes bounce {
+  0%, 80%, 100% { transform: scale(0); }
+  40% { transform: scale(1); }
+}
+
+.theme-toggle {
+  background: var(--primary-light);
+  border: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: var(--primary);
+}
+
+.theme-toggle:hover {
+  transform: rotate(30deg) scale(1.1);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+  </style>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <div class="header-content">
+        <h1>TinoBot AI Assistant</h1>
+        <div class="user-info">Welcome {{ name }} ({{ user_type }})</div>
+      </div>
+
+      <button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode">
+        <i class="fas fa-moon"></i>
+      </button>
+      
+      <div class="header-actions">
+        <a href="{{ url_for('logout') }}" class="btn btn-outline">
+          <i class="fas fa-sign-out-alt"></i> Logout
+        </a>
+        
+        <div class="menu-container">
+          <button class="btn btn-icon" aria-label="Open tools menu" aria-haspopup="true" aria-expanded="false" id="menuBtn">
+            <i class="fas fa-ellipsis-v"></i>
+          </button>
+          <div class="dropdown-menu" id="dropdownMenu" role="menu" aria-labelledby="menuBtn">
+            <button onclick="window.location.href='{{ url_for('research') }}'" role="menuitem">
+              <i class="fas fa-search"></i> Research Finder
+            </button>
+            <button onclick="window.location.href='{{ url_for('summarize') }}'" role="menuitem">
+              <i class="fas fa-file-contract"></i> Content Summarizer
+            </button>
+            <button onclick="window.location.href='{{ url_for('quiz_home') }}'" role="menuitem">
+              <i class="fas fa-question-circle"></i> Quiz Generator
+            </button>
+            <button onclick="window.location.href='{{ url_for('progress') }}'" role="menuitem">
+              <i class="fas fa-chart-line"></i> Progress Tracker
+            </button>
+            <button onclick="window.location.href='/student_chat'" role="menuitem">
+              <i class="fas fa-comments"></i> Chat with Teacher
+            </button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <div class="chat-container">
+      <div id="chat-messages" role="log" aria-live="polite" aria-relevant="additions">
+        {% for msg in chat_history %}
+          <div class="message {{ msg.role }}">
+            {{ msg.content | safe }}
+          </div>
+        {% endfor %}
+      </div>
+
+      <div class="input-area">
+        <input
+          type="text"
+          id="message-input"
+          placeholder="Ask any study-related question..."
+          aria-label="User message input"
+          autocomplete="off"
+        />
+        <button id="voice-btn" aria-label="Voice Input" title="Speak">
+          <i class="fas fa-microphone"></i>
+        </button>
+        <button id="send-btn">
+          <i class="fas fa-paper-plane"></i> Send
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const chatMessages = document.getElementById("chat-messages");
+    const messageInput = document.getElementById("message-input");
+    const sendBtn = document.getElementById("send-btn");
+    const voiceBtn = document.getElementById("voice-btn");
+    const menuBtn = document.getElementById("menuBtn");
+    const dropdownMenu = document.getElementById("dropdownMenu");
+    const themeToggle = document.getElementById("themeToggle");
+
+    // Track active speech utterances
+    let activeUtterance = null;
+
+    // Function to scroll to bottom of chat
+    function scrollToBottom() {
+      chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    // Function to show temporary feedback
+    function showFeedback(messageDiv, text) {
+      const feedbackDiv = document.createElement("div");
+      feedbackDiv.className = "feedback";
+      feedbackDiv.textContent = text;
+      messageDiv.appendChild(feedbackDiv);
+      setTimeout(() => {
+        feedbackDiv.remove();
+      }, 1500);
+    }
+
+    // Function to append a message to the chat with action buttons for assistant messages
+    function appendMessage(role, content) {
+      const messageDiv = document.createElement("div");
+      messageDiv.className = `message ${role}`;
+      messageDiv.innerHTML = role === "assistant" ? marked.parse(content) : content;
+
+      if (role === "assistant") {
+        const actionButtons = document.createElement("div");
+        actionButtons.className = "action-buttons";
+
+        // Voice button
+        const voiceButton = document.createElement("button");
+        voiceButton.className = "btn btn-icon";
+        voiceButton.innerHTML = '<i class="fas fa-volume-up"></i>';
+        voiceButton.title = "Listen";
+        voiceButton.addEventListener("click", () => {
+          if (activeUtterance && !window.speechSynthesis.paused) {
+            window.speechSynthesis.cancel(); // Stop current speech
+            voiceButton.innerHTML = '<i class="fas fa-volume-up"></i>';
+            activeUtterance = null;
+            showFeedback(messageDiv, "Stopped");
+          } else if (!activeUtterance) {
+            const utterance = new SpeechSynthesisUtterance(content);
+            utterance.lang = "en-US";
+            activeUtterance = utterance; // Store the current utterance
+            voiceButton.innerHTML = '<i class="fas fa-pause"></i>';
+            window.speechSynthesis.speak(utterance);
+            showFeedback(messageDiv, "Playing");
+            utterance.onend = () => {
+              voiceButton.innerHTML = '<i class="fas fa-volume-up"></i>';
+              activeUtterance = null; // Clear when speech ends
+            };
+          }
+        });
+
+        // Copy button
+        const copyButton = document.createElement("button");
+        copyButton.className = "btn btn-icon";
+        copyButton.innerHTML = '<i class="fas fa-copy"></i>';
+        copyButton.title = "Copy";
+        copyButton.addEventListener("click", () => {
+          navigator.clipboard.writeText(content).then(() => {
+            const originalText = copyButton.innerHTML;
+            copyButton.innerHTML = '<i class="fas fa-check"></i>';
+            showFeedback(messageDiv, "Copied!");
+            setTimeout(() => {
+              copyButton.innerHTML = originalText;
+            }, 2000);
+          }).catch(err => {
+            console.error("Copy failed:", err);
+          });
+        });
+
+        actionButtons.appendChild(voiceButton);
+        actionButtons.appendChild(copyButton);
+        messageDiv.appendChild(actionButtons);
+      }
+
+      chatMessages.appendChild(messageDiv);
+      scrollToBottom();
+    }
+
+    // Function to show typing indicator
+    function showTypingIndicator() {
+      const typingDiv = document.createElement("div");
+      typingDiv.className = "message assistant typing";
+      typingDiv.textContent = "TinoBot is typing";
+      chatMessages.appendChild(typingDiv);
+      scrollToBottom();
+      return typingDiv;
+    }
+
+    // Function to remove typing indicator
+    function removeTypingIndicator(typingElement) {
+      if (typingElement && typingElement.parentNode) {
+        typingElement.parentNode.removeChild(typingElement);
+      }
+    }
+
+    // Function to send message
+    async function sendMessage() {
+      const message = messageInput.value.trim();
+      if (!message) return;
+
+      appendMessage("user", message);
+      messageInput.value = "";
+      messageInput.disabled = true;
+      sendBtn.disabled = true;
+
+      const typingElement = showTypingIndicator();
+
+      try {
+        const response = await fetch("/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message }),
+        });
+
+        if (response.status === 403) {
+          window.location.href = "/";
+          throw new Error("Session expired");
+        }
+
+        const data = await response.json();
+        removeTypingIndicator(typingElement);
+        
+        if (data.response === "Chat history has been cleared.") {
+          chatMessages.innerHTML = "";
+        } else {
+          appendMessage("assistant", data.response);
+        }
+      } catch (error) {
+        removeTypingIndicator(typingElement);
+        appendMessage("assistant", `⚠️ Error: ${error.message}`);
+      } finally {
+        messageInput.disabled = false;
+        sendBtn.disabled = false;
+        messageInput.focus();
+      }
+    }
+
+    // Theme toggle functionality
+    function toggleTheme() {
+      const currentTheme = document.documentElement.getAttribute('data-theme');
+      const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+      
+      document.documentElement.setAttribute('data-theme', newTheme);
+      localStorage.setItem('theme', newTheme);
+      
+      // Update icon
+      const icon = themeToggle.querySelector('i');
+      icon.className = newTheme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+    }
+
+    // Initialize theme
+    function initializeTheme() {
+      const savedTheme = localStorage.getItem('theme') || 'light';
+      document.documentElement.setAttribute('data-theme', savedTheme);
+      
+      // Set correct icon
+      const icon = themeToggle.querySelector('i');
+      icon.className = savedTheme === 'dark' ? 'fas fa-sun' : 'fas fa-moon';
+    }
+
+    // Event listeners
+    sendBtn.addEventListener("click", sendMessage);
+    messageInput.addEventListener("keypress", (e) => {
+      if (e.key === "Enter") {
+        sendMessage();
+      }
+    });
+
+    // Toggle dropdown menu
+    menuBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const isExpanded = menuBtn.getAttribute("aria-expanded") === "true";
+      menuBtn.setAttribute("aria-expanded", !isExpanded);
+      dropdownMenu.classList.toggle("show");
+    });
+
+    // Close dropdown when clicking outside
+    document.addEventListener("click", (e) => {
+      if (!menuBtn.contains(e.target) && !dropdownMenu.contains(e.target)) {
+        dropdownMenu.classList.remove("show");
+        menuBtn.setAttribute("aria-expanded", "false");
+      }
+    });
+
+    // Voice recognition
+    voiceBtn.addEventListener("click", () => {
+      const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+      recognition.lang = 'en-US';
+      recognition.interimResults = false;
+      recognition.maxAlternatives = 1;
+
+      recognition.start();
+      voiceBtn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i>';
+      voiceBtn.style.backgroundColor = "#ef4444";
+
+      recognition.onresult = function(event) {
+        const voiceText = event.results[0][0].transcript;
+        messageInput.value = voiceText;
+        voiceBtn.innerHTML = '<i class="fas fa-microphone"></i>';
+        voiceBtn.style.backgroundColor = "";
+        sendMessage();
+      };
+
+      recognition.onerror = function(event) {
+        console.error("Voice recognition error:", event.error);
+        voiceBtn.innerHTML = '<i class="fas fa-microphone"></i>';
+        voiceBtn.style.backgroundColor = "";
+        appendMessage("assistant", "Voice input failed. Please try again.");
+      };
+
+      recognition.onend = function() {
+        if (voiceBtn.innerHTML.includes("fa-spin")) {
+          voiceBtn.innerHTML = '<i class="fas fa-microphone"></i>';
+          voiceBtn.style.backgroundColor = "";
+        }
+      };
+    });
+
+    // Theme toggle event
+    themeToggle.addEventListener('click', toggleTheme);
+
+    // Initialize theme on load
+    window.addEventListener('DOMContentLoaded', initializeTheme);
+
+    // Focus input on load
+    window.onload = () => {
+      messageInput.focus();
+      scrollToBottom();
+    };
+
+    // Smooth scroll for new messages
+    const observer = new MutationObserver(scrollToBottom);
+    observer.observe(chatMessages, { childList: true });
+  </script>
+</body>
+</html>

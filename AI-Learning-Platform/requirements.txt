@@ -1,0 +1,48 @@
+# --- Core Web App ---
+Flask
+gunicorn
+Werkzeug
+python-dotenv
+
+# --- HTTP and API Communication ---
+requests
+beautifulsoup4
+
+# --- AI & NLP Libraries ---
+langchain
+langchain-community
+huggingface-hub
+sentence-transformers
+GPT4All
+
+# --- Embedding & Vector DB ---
+chromadb
+faiss-cpu
+
+# --- Document Handling ---
+PyPDF2
+pdfplumber
+python-docx
+
+# --- Voice Processing (Fixed for Render) ---
+SpeechRecognition
+sounddevice       # Replaces PyAudio
+pydub
+pyttsx3
+
+# --- NLP & ML ---
+nltk
+scikit_learn
+torch
+transformers
+
+# --- Utility ---
+uuid
+pytz
+tqdm
+joblib
+typing_extensions
+zipp
+importlib_resources
+coloredlogs
+humanfriendly
