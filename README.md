@@ -67,6 +67,3 @@ Teachers: Looking for powerful tools to monitor student progress and provide dat
 
 # 🎯 Project Objective
 The core objective is to develop a smart educational platform that harnesses AI to facilitate student learning and empower teacher monitoring, creating an adaptive and engaging educational ecosystem.
-
-👨‍💻 Development Team
-This collaborative project was developed by Amal and Rishil with a vision to revolutionize digital education through intelligent automation and analytics.
